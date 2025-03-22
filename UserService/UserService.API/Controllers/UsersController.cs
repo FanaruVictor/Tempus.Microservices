@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using UserService.Infrastructure.Commands.Users.ChangeTheme;
+using UserService.Infrastructure.Commands.Users.Create;
 using UserService.Infrastructure.Commands.Users.Delete;
 using UserService.Infrastructure.Commands.Users.Update;
 using UserService.Infrastructure.Models;
@@ -8,6 +9,7 @@ using UserService.Infrastructure.Queries.Users.GetAll;
 using UserService.Infrastructure.Queries.Users.GetById;
 using UserService.Infrastructure.Queries.Users.GetEmails;
 using UserService.Infrastructure.Queries.Users.GetTheme;
+using UserService.Infrastructure.Queries.Users.GetUserByEmail;
 
 namespace UserService.API.Controllers
 {
@@ -22,20 +24,10 @@ namespace UserService.API.Controllers
         ///     Get all users from database
         /// </summary>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet()]
         public async Task<ActionResult<List<UserDetails>>> GetAll()
         {
             return HandleResponse(await _mediator.Send(new GetAllUsersQuery()));
-        }
-
-        /// <summary>
-        ///     Get current user details
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("details")]
-        public async Task<ActionResult<UserDetails>> GetDetails()
-        {
-            return HandleResponse(await _mediator.Send(new GetUserByIdQuery()));
         }
 
         /// <summary>
@@ -90,6 +82,18 @@ namespace UserService.API.Controllers
         public async Task<ActionResult<List<UserEmail>>> GetEmails()
         {
             return HandleResponse(await _mediator.Send(new GetEmailsQuery()));
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<UserDetails>> Create([FromBody] CreateUserCommand command)
+        {
+            return HandleResponse(await _mediator.Send(command));
+        }
+
+        [HttpGet("loginCredentials/{email}")]
+        public async Task<ActionResult<LoginCredentials>> GetLoginCredentials([FromRoute] string email)
+        {
+            return HandleResponse(await _mediator.Send(new GetLoginCredentialsHandler { Email = email }));
         }
     }
 }

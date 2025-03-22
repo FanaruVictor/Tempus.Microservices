@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UserService.Infrastructure.Commons;
 using CustomStatusCodes = UserService.Infrastructure.Commons.StatusCodes;
@@ -13,7 +12,7 @@ namespace UserService.API.Controllers;
 ///     constructor
 /// </remarks>
 /// <param name="mediator"></param>
-[Authorize, ApiController, Route("api/[controller]")]
+[ApiController, Route("api/[controller]")]
 public class BaseController(IMediator mediator) : ControllerBase
 {
     /// <summary>

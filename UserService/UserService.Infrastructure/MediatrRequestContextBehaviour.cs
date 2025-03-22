@@ -1,7 +1,5 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
-using System.Diagnostics;
-using System.Security.Claims;
 using UserService.Infrastructure.Commons;
 
 namespace UserService.Infrastructure;
@@ -11,19 +9,24 @@ public class MediatrRequestContextBehaviour<TRequest, TResponse>(IHttpContextAcc
 {
     private readonly IHttpContextAccessor _contextAccessor = contextAccessor;
 
-    [DebuggerStepThrough]
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
-        var userIdClaim =
-            _contextAccessor.HttpContext.User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)
-            ?? throw new UnauthorizedAccessException("User doesn't have the necessary claims");
 
-        if (Guid.TryParse(userIdClaim?.Value, out var userId))
+        if (_contextAccessor.HttpContext.Request.Path.Value == "/api/users" && _contextAccessor.HttpContext.Request.Method == HttpMethod.Post.ToString()
+            || _contextAccessor.HttpContext.Request.Path.Value.StartsWith("/api/users/loginCredentials"))
         {
-            request.UserId = userId;
+            return await next();
         }
 
-        return await next();
+        if ((_contextAccessor.HttpContext?.Request.Headers.TryGetValue("UserId", out var userIdHeader) ?? false)
+            && Guid.TryParse(userIdHeader.ToString(), out var userId))
+        {
+            request.UserId = userId;
+
+            return await next();
+        }
+
+        throw new UnauthorizedAccessException("User doesn't have the necessary claims");
     }
 }

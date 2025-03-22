@@ -8,5 +8,4 @@ public class UserDetails
     public string PhoneNumber { get; set; }
     public PhotoDetails Photo { get; set; }
     public bool IsDarkTheme { get; set; }
-    public string ExternalId { get; set; }
 }

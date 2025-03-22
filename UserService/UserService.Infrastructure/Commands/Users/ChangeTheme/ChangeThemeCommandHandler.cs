@@ -19,7 +19,7 @@ public class ChangeThemeCommandHandler(UserServiceDbContext context) : IRequestH
 
             var user = await _context.Users
                 .AsNoTracking()
-                .Include(x => x.UserPhoto)
+                .Include(x => x.Photo)
                 .FirstOrDefaultAsync(x => x.Id == request.UserId, cancellationToken: cancellationToken);
 
             BaseResponse<UserDetails> result;
@@ -37,13 +37,13 @@ public class ChangeThemeCommandHandler(UserServiceDbContext context) : IRequestH
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            var profilePhoto = user.UserPhoto;
+            var profilePhoto = user.Photo;
 
             var userDetails = GenericMapper<User, UserDetails>.Map(user);
 
             if (profilePhoto != null)
             {
-                userDetails.Photo = GenericMapper<UserPhoto, PhotoDetails>.Map(profilePhoto);
+                userDetails.Photo = GenericMapper<Photo, PhotoDetails>.Map(profilePhoto);
             }
 
             result = BaseResponse<UserDetails>.Ok(userDetails);

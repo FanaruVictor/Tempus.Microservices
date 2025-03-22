@@ -19,12 +19,12 @@ public class GetEmailsQueryHandler(UserServiceDbContext context) : IRequestHandl
             var userEmails = await _context.Users
                 .AsNoTracking()
                 .Where(x => x.Id != request.UserId)
-                .Include(x => x.UserPhoto)
+                .Include(x => x.Photo)
                 .Select(x => new UserEmail
                 {
                     Email = x.Email,
                     Id = x.Id,
-                    PhotoUrl = x.UserPhoto.Url
+                    PhotoUrl = x.Photo.Url
                 }
                 )
                 .ToListAsync(cancellationToken: cancellationToken);

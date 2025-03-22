@@ -7,7 +7,6 @@ using System.Reflection;
 using UserService.Infrastructure.Commons;
 using UserService.Infrastructure.IServices;
 using UserService.Infrastructure.Queries.Users.GetAll;
-using UserService.Infrastructure.Services.AuthenticationService;
 using UserService.Infrastructure.Services.Cloudynary;
 
 namespace UserService.Infrastructure;
@@ -24,7 +23,6 @@ public static class ConfigureServices
         services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetAllUsersQuery).Assembly));
         services.AddScoped<ICloudinaryService, CloudinaryService>();
-        services.AddScoped<IAuthenticationService, AuthenticationService>();
 
         return services;
     }

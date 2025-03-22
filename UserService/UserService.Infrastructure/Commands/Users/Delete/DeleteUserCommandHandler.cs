@@ -33,7 +33,7 @@ public class DeleteUserCommandHandler(ICloudinaryService cloudinaryService, User
             _context.Users
                .Remove(user);
 
-            if (user.UserPhoto != null && user.ExternalId == null)
+            if (user.Photo != null)
             {
                 await _cloudinaryService.DestroyUsingUserId(deletedUserId);
             }

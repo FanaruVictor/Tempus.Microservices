@@ -44,7 +44,7 @@ public class CloudinaryService : ICloudinaryService
 
     public async Task DestroyUsingUserId(Guid userId)
     {
-        var photo = await _context.UserPhotos
+        var photo = await _context.Photos
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.UserId == userId) ?? throw new Exception("Photo not found");
 
@@ -54,7 +54,7 @@ public class CloudinaryService : ICloudinaryService
         }
     }
 
-    private async Task Destroy(UserPhoto photo)
+    private async Task Destroy(Photo photo)
     {
         var destroyParams = new DeletionParams(photo.PublicId)
         {

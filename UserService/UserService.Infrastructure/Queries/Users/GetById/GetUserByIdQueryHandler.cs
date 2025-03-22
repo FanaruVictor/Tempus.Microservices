@@ -26,7 +26,7 @@ public class GetUserByIdQueryHandler(UserServiceDbContext context) : IRequestHan
 
             var user = await _context.Users
                 .AsNoTracking()
-                .Include(x => x.UserPhoto)
+                .Include(x => x.Photo)
                 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken: cancellationToken);
 
             if (user == null)
@@ -36,9 +36,9 @@ public class GetUserByIdQueryHandler(UserServiceDbContext context) : IRequestHan
 
             var userDetails = GenericMapper<User, UserDetails>.Map(user);
 
-            if (user.UserPhoto != null)
+            if (user.Photo != null)
             {
-                userDetails.Photo = GenericMapper<UserPhoto, PhotoDetails>.Map(user.UserPhoto);
+                userDetails.Photo = GenericMapper<Photo, PhotoDetails>.Map(user.Photo);
             }
 
             var result = BaseResponse<UserDetails>.Ok(userDetails);

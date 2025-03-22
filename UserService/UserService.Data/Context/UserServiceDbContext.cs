@@ -7,7 +7,7 @@ namespace UserService.Data.Context
     public class UserServiceDbContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<User> Users => Set<User>();
-        public DbSet<UserPhoto> UserPhotos => Set<UserPhoto>();
+        public DbSet<Photo> Photos => Set<Photo>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

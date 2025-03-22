@@ -4,13 +4,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using UserService.Core.Entities;
 using UserService.Data.Context;
-using UserService.Infrastructure.Commands.Users.Update;
 using UserService.Infrastructure.Commons;
 using UserService.Infrastructure.IServices;
 using UserService.Infrastructure.Models;
 using StatusCodes = UserService.Infrastructure.Commons.StatusCodes;
 
-namespace Tempus.Infrastructure.Commands.Users.Update;
+namespace UserService.Infrastructure.Commands.Users.Update;
 
 public class UpdateUserCommandHandler(
     ICloudinaryService cloudinaryService,
@@ -27,7 +26,7 @@ public class UpdateUserCommandHandler(
 
             var user = await _context.Users
                 .AsNoTracking()
-                .Include(x => x.UserPhoto)
+                .Include(x => x.Photo)
                 .FirstOrDefaultAsync(x => x.Id == request.UserId, cancellationToken: cancellationToken);
 
             if (user == null)
@@ -51,7 +50,7 @@ public class UpdateUserCommandHandler(
             await _context.SaveChangesAsync(cancellationToken);
 
             var userDetails = GenericMapper<User, UserDetails>.Map(updateResult.Resource);
-            userDetails.Photo = GenericMapper<UserPhoto, PhotoDetails>.Map(updateResult.Resource.UserPhoto);
+            userDetails.Photo = GenericMapper<Photo, PhotoDetails>.Map(updateResult.Resource.Photo);
 
             result = BaseResponse<UserDetails>.Ok(userDetails);
 
@@ -72,8 +71,7 @@ public class UpdateUserCommandHandler(
             Email = request.Email,
             PhoneNumber = request.PhoneNumber,
             IsDarkTheme = user.IsDarkTheme,
-            ExternalId = user.ExternalId,
-            UserPhoto = user.UserPhoto
+            Photo = user.Photo
         };
 
         if (request.IsPhotoChanged)
@@ -89,51 +87,51 @@ public class UpdateUserCommandHandler(
                 };
             }
 
-            user.UserPhoto = updatePhotoResult.Resource ?? null;
+            user.Photo = updatePhotoResult.Resource ?? null;
         }
 
         _context.Users.Update(user);
         return BaseResponse<User>.Ok(user);
     }
 
-    private async Task<BaseResponse<UserPhoto>> UpdatePhoto(IFormFile? photo, User user)
+    private async Task<BaseResponse<Photo>> UpdatePhoto(IFormFile? photo, User user)
     {
         if (photo == null)
         {
-            if (user.UserPhoto != null)
+            if (user.Photo != null)
             {
                 await _cloudinaryService.DestroyUsingUserId(user.Id);
-                _context.UserPhotos
-                    .Remove(user.UserPhoto);
+                _context.Photos
+                    .Remove(user.Photo);
             }
 
-            return BaseResponse<UserPhoto>.Ok();
+            return BaseResponse<Photo>.Ok();
         }
 
         ImageUploadResult uploadResult;
 
-        UserPhoto userPhoto;
+        Photo userPhoto;
 
-        if (user.UserPhoto != null)
+        if (user.Photo != null)
         {
             await _cloudinaryService.DestroyUsingUserId(user.Id);
 
             uploadResult = await _cloudinaryService.Upload(photo);
 
-            userPhoto = new UserPhoto
+            userPhoto = new Photo
             {
-                Id = user.UserPhoto.Id,
+                Id = user.Photo.Id,
                 PublicId = uploadResult.PublicId,
                 Url = uploadResult.Url.ToString(),
                 UserId = user.Id
             };
 
-            _context.UserPhotos.Update(userPhoto);
+            _context.Photos.Update(userPhoto);
         }
         else
         {
             uploadResult = await _cloudinaryService.Upload(photo);
-            userPhoto = new UserPhoto
+            userPhoto = new Photo
             {
                 Id = Guid.NewGuid(),
                 PublicId = uploadResult.PublicId,
@@ -145,6 +143,6 @@ public class UpdateUserCommandHandler(
 
         await _context.SaveChangesAsync();
 
-        return BaseResponse<UserPhoto>.Ok(userPhoto);
+        return BaseResponse<Photo>.Ok(userPhoto);
     }
 }
