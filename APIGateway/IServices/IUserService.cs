@@ -1,4 +1,4 @@
-﻿using APIGateway.Models;
+﻿using APIGateway.Models.User;
 
 namespace APIGateway.IServices
 {

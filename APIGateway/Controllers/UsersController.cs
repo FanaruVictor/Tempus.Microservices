@@ -1,16 +1,14 @@
 ﻿using APIGateway.IServices;
-using APIGateway.Models;
+using APIGateway.Models.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace APIGateway.Controllers;
 
 [ApiController, Route("api/[controller]"), Authorize]
-public class UsersController(IUserService userService, IHttpContextAccessor contextAccessor) : ControllerBase
+public class UsersController(IUserService userService, IHttpContextAccessor contextAccessor) : BaseController(contextAccessor)
 {
     private readonly IUserService userService = userService;
-    private readonly IHttpContextAccessor contextAccessor = contextAccessor;
 
     [HttpGet]
     public async Task<ActionResult<List<UserDetails>>> GetAll()
@@ -145,23 +143,5 @@ public class UsersController(IUserService userService, IHttpContextAccessor cont
         var response = await this.userService.GetEmails(id);
 
         return Ok(response);
-    }
-
-    private Guid GetUserIdFromRequest()
-    {
-        var userIdClaim =
-           this.contextAccessor.HttpContext.User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier);
-
-        if (userIdClaim == null)
-        {
-            throw new UnauthorizedAccessException("User doesn't have the necessary claims");
-        }
-
-        if (Guid.TryParse(userIdClaim?.Value, out var userId))
-        {
-            return userId;
-        }
-
-        return Guid.Empty;
     }
 }

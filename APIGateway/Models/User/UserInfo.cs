@@ -1,4 +1,4 @@
-﻿namespace APIGateway.Models
+﻿namespace APIGateway.Models.User
 {
     public class UserInfo
     {

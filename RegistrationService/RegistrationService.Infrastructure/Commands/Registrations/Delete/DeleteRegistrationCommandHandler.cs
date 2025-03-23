@@ -1,7 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using RegistrationService.Core.Commons;
-using RegistrationService.Core.Entities;
 using RegistrationService.Data.Context;
 
 namespace RegistrationService.Infrastructure.Commands.Registrations.Delete;
@@ -30,11 +29,9 @@ public class DeleteRegistrationCommandHandler : IRequestHandler<DeleteRegistrati
                 return BaseResponse<Guid>.NotFound("Registration not found!");
             }
 
-            var validator = ValidateRequest(request, registration);
-
-            if (validator.StatusCode != StatusCodes.Ok)
+            if ((request.GroupId.HasValue && registration.OwnerId != request.GroupId.Value) || registration.OwnerId != request.UserId)
             {
-                return validator;
+                return BaseResponse<Guid>.Forbbiden();
             }
 
             _context.Registrations.Remove(registration);
@@ -55,57 +52,6 @@ public class DeleteRegistrationCommandHandler : IRequestHandler<DeleteRegistrati
         {
             return BaseResponse<Guid>.BadRequest(new List<string> { exception.Message });
         }
-    }
-
-    private BaseResponse<Guid> ValidateRequest(DeleteRegistrationCommand request,
-        Registration registration)
-    {
-        if (request.GroupId.HasValue)
-        {
-            return ValidateForGroup(request, registration);
-        }
-
-        return ValidateForUser(request, registration);
-    }
-
-    private BaseResponse<Guid> ValidateForUser(DeleteRegistrationCommand request,
-        Registration registration)
-    {
-
-        //get userId for registration
-        Guid userId = Guid.Empty;
-
-        if (userId == null)
-        {
-            return BaseResponse<Guid>.BadRequest(new List<string> { "Internal server error" });
-        }
-
-        if (userId != request.UserId)
-        {
-            return BaseResponse<Guid>.Forbbiden();
-        }
-
-        return BaseResponse<Guid>.Ok();
-    }
-
-    private BaseResponse<Guid> ValidateForGroup(DeleteRegistrationCommand request,
-        Registration registration)
-    {
-
-        // get the groupId on which this registration was created
-        Guid groupId = Guid.Empty;
-
-        if (groupId == null)
-        {
-            return BaseResponse<Guid>.NotFound("Group not found!");
-        }
-
-        if (groupId != request.GroupId)
-        {
-            return BaseResponse<Guid>.Forbbiden();
-        }
-
-        return BaseResponse<Guid>.Ok();
     }
 
     /* private async Task SendEvent(List<Guid> usersId, Guid registrationId, Guid groupId)

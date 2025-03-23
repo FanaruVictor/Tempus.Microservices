@@ -34,11 +34,9 @@ public class
                 return BaseResponse<RegistrationDetails>.NotFound("Registration not found!");
             }
 
-            var validator = ValidateRequest(request, registration);
-
-            if (validator.StatusCode != StatusCodes.Ok)
+            if ((request.GroupId.HasValue && registration.OwnerId != request.GroupId.Value) || registration.OwnerId != request.UserId)
             {
-                return validator;
+                return BaseResponse<RegistrationDetails>.Forbbiden();
             }
 
             var response =
@@ -51,49 +49,5 @@ public class
             var response = BaseResponse<RegistrationDetails>.BadRequest(new List<string> { exception.Message });
             return response;
         }
-    }
-
-    private BaseResponse<RegistrationDetails> ValidateRequest(GetRegistrationByIdQuery request,
-        Registration registration)
-    {
-        if (request.GroupId.HasValue)
-        {
-            return ValidateForGroup(request, registration);
-        }
-
-        return ValidateForUser(request, registration);
-    }
-
-    private BaseResponse<RegistrationDetails> ValidateForUser(GetRegistrationByIdQuery request,
-        Registration registration)
-    {
-        //get userId for registration
-        Guid userId = Guid.Empty;
-
-        if (userId == null)
-        {
-            return BaseResponse<RegistrationDetails>.BadRequest(new List<string> { "Internal server error" });
-        }
-
-        if (userId != request.UserId)
-        {
-            return BaseResponse<RegistrationDetails>.Forbbiden();
-        }
-
-        return BaseResponse<RegistrationDetails>.Ok();
-    }
-
-    private BaseResponse<RegistrationDetails> ValidateForGroup(GetRegistrationByIdQuery request,
-        Registration registration)
-    {
-        // get the groupId on which this registration was created
-        Guid groupId = Guid.Empty;
-
-        if (groupId == null)
-        {
-            return BaseResponse<RegistrationDetails>.NotFound("Group not found!");
-        }
-
-        return BaseResponse<RegistrationDetails>.Ok();
     }
 }

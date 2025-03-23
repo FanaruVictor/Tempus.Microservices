@@ -4,4 +4,4 @@ using RegistrationService.Infrastructure.Commons;
 
 namespace RegistrationService.Infrastructure.Queries.Registrations.LastUpdated;
 
-public class GetLastUpdatedRegsitrationQuery : BaseRequest<BaseResponse<BaseRegistration>> { }
+public class GetLastUpdatedRegsitrationQuery : BaseRequest<BaseResponse<RegistrationDetails>> { }

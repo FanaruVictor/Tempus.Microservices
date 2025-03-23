@@ -7,7 +7,6 @@ namespace CategoryService.Data.Context
     public class CategoryServiceDbContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Category> Categories { get; set; }
-        public DbSet<GroupCategory> GroupCategories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

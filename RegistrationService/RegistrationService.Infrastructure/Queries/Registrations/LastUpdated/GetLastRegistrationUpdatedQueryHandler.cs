@@ -10,7 +10,7 @@ namespace RegistrationService.Infrastructure.Queries.Registrations.LastUpdated;
 
 public class
     GetLastRegistrationUpdatedQueryHandler : IRequestHandler<GetLastUpdatedRegsitrationQuery,
-        BaseResponse<BaseRegistration>>
+        BaseResponse<RegistrationDetails>>
 {
     private readonly RegistrationServiceDbContext _context;
 
@@ -19,7 +19,7 @@ public class
         _context = context;
     }
 
-    public async Task<BaseResponse<BaseRegistration>> Handle(GetLastUpdatedRegsitrationQuery request,
+    public async Task<BaseResponse<RegistrationDetails>> Handle(GetLastUpdatedRegsitrationQuery request,
         CancellationToken cancellationToken)
     {
         try
@@ -33,16 +33,16 @@ public class
 
             if (registration == null)
             {
-                return BaseResponse<BaseRegistration>.NotFound("Registration not found!");
+                return BaseResponse<RegistrationDetails>.NotFound("Registration not found!");
             }
 
             var response =
-                BaseResponse<BaseRegistration>.Ok(GenericMapper<Registration, BaseRegistration>.Map(registration));
+                BaseResponse<RegistrationDetails>.Ok(GenericMapper<Registration, RegistrationDetails>.Map(registration));
             return response;
         }
         catch (Exception exception)
         {
-            var response = BaseResponse<BaseRegistration>.BadRequest(new List<string> { exception.Message });
+            var response = BaseResponse<RegistrationDetails>.BadRequest(new List<string> { exception.Message });
             return response;
         }
     }

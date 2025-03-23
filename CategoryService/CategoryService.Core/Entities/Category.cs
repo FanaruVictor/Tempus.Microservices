@@ -7,5 +7,5 @@ public class Category
     public DateTime CreatedAt { get; set; }
     public DateTime LastUpdatedAt { get; set; }
     public string? Color { get; set; }
-    public Guid UserId { get; set; }
+    public Guid OwnerId { get; set; }
 }

@@ -9,4 +9,5 @@ public class UpdateRegistrationCommand : BaseRequest<BaseResponse<RegistrationDe
     public Guid Id { get; init; }
     public string? Description { get; init; }
     public string? Content { get; init; }
+    public Guid? GroupId { get; set; }
 }

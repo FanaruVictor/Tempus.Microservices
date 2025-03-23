@@ -1,6 +1,5 @@
 ﻿using CategoryService.Infrastructure.Commons;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CustomStatusCodes = CategoryService.Infrastructure.Commons.StatusCodes;
 
@@ -9,7 +8,7 @@ namespace CategoryService.API.Controllers;
 /// <summary>
 ///     Base controller, every controller will inherited this one
 /// </summary>
-[Authorize, ApiController, Route("api/[controller]")]
+[ApiController, Route("api/[controller]")]
 public class BaseController : ControllerBase
 {
     /// <summary>

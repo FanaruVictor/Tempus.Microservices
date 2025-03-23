@@ -8,10 +8,7 @@ namespace CategoryService.Data.Context.Configuration
     {
         public void Configure(EntityTypeBuilder<Category> builder)
         {
-            builder
-                .HasDiscriminator<string>("category_type")
-                .HasValue<Category>("category")
-                .HasValue<GroupCategory>("category_group");
+            builder.Property(x => x.OwnerId).IsRequired();
         }
     }
 }

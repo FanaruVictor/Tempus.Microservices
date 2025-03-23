@@ -27,15 +27,12 @@ public class CategoriesController : BaseController
     /// <param name="query"></param>
     /// <returns></returns>
     [HttpGet]
-    public async Task<ActionResult<List<BaseCategory>>> GetAll()
+    public async Task<ActionResult<List<BaseCategory>>> GetAll([FromQuery] Guid groupId)
     {
-        return HandleResponse(await _mediator.Send(new GetAllCategoriesQuery()));
-    }
-
-    [HttpGet("groups/{groupId}")]
-    public async Task<ActionResult<List<BaseCategory>>> GetAll([FromRoute] Guid groupId)
-    {
-        return HandleResponse(await _mediator.Send(new GetAllCategoriesQuery { GroupId = groupId }));
+        return HandleResponse(await _mediator.Send(new GetAllCategoriesQuery
+        {
+            GroupId = groupId
+        }));
     }
 
     /// <summary>
@@ -44,9 +41,9 @@ public class CategoriesController : BaseController
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpGet("{id}")]
-    public async Task<ActionResult<BaseCategory>> GetById([FromRoute] Guid id)
+    public async Task<ActionResult<BaseCategory>> GetById([FromRoute] Guid id, [FromQuery] Guid groupId)
     {
-        return HandleResponse(await _mediator.Send(new GetCategoryByIdQuery { Id = id }));
+        return HandleResponse(await _mediator.Send(new GetCategoryByIdQuery { Id = id, GroupId = groupId }));
     }
 
     /// <summary>
@@ -57,13 +54,6 @@ public class CategoriesController : BaseController
     [HttpPost]
     public async Task<ActionResult<BaseCategory>> Create([FromBody] CreateCategoryCommand command)
     {
-        return HandleResponse(await _mediator.Send(command));
-    }
-
-    [HttpPost("groups/{groupId}")]
-    public async Task<ActionResult<BaseCategory>> Create([FromRoute] Guid groupId, [FromBody] CreateCategoryCommand command)
-    {
-        command.GroupId = groupId;
         return HandleResponse(await _mediator.Send(command));
     }
 
@@ -84,11 +74,12 @@ public class CategoriesController : BaseController
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpDelete("{id}")]
-    public async Task<ActionResult<Guid>> Delete([FromRoute] Guid id)
+    public async Task<ActionResult<Guid>> Delete([FromRoute] Guid id, [FromQuery] Guid groupId)
     {
         return HandleResponse(await _mediator.Send(new DeleteCategoryCommand
         {
-            Id = id
+            Id = id,
+            GroupId = groupId
         }));
     }
 }

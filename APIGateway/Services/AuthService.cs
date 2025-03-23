@@ -1,5 +1,6 @@
 ﻿using APIGatewat.Models;
 using APIGateway.Models;
+using APIGateway.Models.User;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
@@ -9,9 +10,17 @@ using BCryptNet = BCrypt.Net;
 
 namespace APIGatewat.IServices;
 
-public class AuthService(IConfiguration configuration) : IAuthService
+public class AuthService : IAuthService
 {
-    private readonly IConfiguration _configuration = configuration;
+    private readonly IConfiguration configuration;
+    private readonly string userServiceBaseUrl;
+
+    public AuthService(IConfiguration configuration)
+    {
+        this.configuration = configuration;
+
+        this.userServiceBaseUrl = configuration["userServiceBaseURL"];
+    }
 
     public async Task<AuthorizationResult> Register(NewUser newUser)
     {
@@ -24,7 +33,7 @@ public class AuthService(IConfiguration configuration) : IAuthService
 
         HttpContent content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        var responseObject = await httpClient.PostAsync(new Uri("http://localhost:5160/api/users"), content);
+        var responseObject = await httpClient.PostAsync(new Uri(this.userServiceBaseUrl), content);
 
         responseObject.EnsureSuccessStatusCode();
 
@@ -46,7 +55,7 @@ public class AuthService(IConfiguration configuration) : IAuthService
     {
         using var httpClient = new System.Net.Http.HttpClient();
 
-        var responseObject = await httpClient.GetAsync(new Uri($"http://localhost:5160/api/users/loginCredentials/{credentials.Email}"));
+        var responseObject = await httpClient.GetAsync(new Uri($"{this.userServiceBaseUrl}/loginCredentials/{credentials.Email}"));
 
         responseObject.EnsureSuccessStatusCode();
 
@@ -84,7 +93,7 @@ public class AuthService(IConfiguration configuration) : IAuthService
         };
 
         var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value!));
+            Encoding.UTF8.GetBytes(this.configuration.GetSection("AppSettings:Token").Value!));
 
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 

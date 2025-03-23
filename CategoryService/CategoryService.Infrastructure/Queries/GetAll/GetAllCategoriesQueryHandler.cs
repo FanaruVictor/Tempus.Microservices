@@ -18,23 +18,11 @@ public class GetAllCategoriesQueryHandler(CategoryServiceDbContext context) : IR
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            List<Category> categories;
-
-            if (request.GroupId.HasValue)
-            {
-                categories = await _context.GroupCategories
-                    .AsNoTracking()
-                    .Where(x => x.GroupId == request.GroupId)
-                    .Select(x => (Category)x)
-                    .ToListAsync(cancellationToken);
-            }
-            else
-            {
-                categories = await _context.Categories
-                    .AsNoTracking()
-                    .Where(x => x.UserId == request.UserId)
-                    .ToListAsync(cancellationToken);
-            }
+            var categories = await _context.Categories
+                .AsNoTracking()
+                .Where(x => x.OwnerId == (request.GroupId.HasValue && request.GroupId.Value != Guid.Empty ? request.GroupId.Value : request.UserId))
+                .Select(x => x)
+                .ToListAsync(cancellationToken);
 
             var response =
                 BaseResponse<List<BaseCategory>>.Ok(categories

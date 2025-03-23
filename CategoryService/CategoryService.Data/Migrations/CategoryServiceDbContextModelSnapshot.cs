@@ -41,31 +41,12 @@ namespace CategoryService.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("OwnerId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("category_type")
-                        .IsRequired()
-                        .HasMaxLength(21)
-                        .HasColumnType("nvarchar(21)");
 
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
-
-                    b.HasDiscriminator<string>("category_type").HasValue("category");
-
-                    b.UseTphMappingStrategy();
-                });
-
-            modelBuilder.Entity("CategoryService.Core.Entities.GroupCategory", b =>
-                {
-                    b.HasBaseType("CategoryService.Core.Entities.Category");
-
-                    b.Property<Guid>("GroupId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasDiscriminator().HasValue("category_group");
                 });
 #pragma warning restore 612, 618
         }

@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 namespace RegistrationService.Infrastructure.Commands.Registrations.Create;
 
 public class
-    CreateRegistrationCommandHandler : IRequestHandler<CreateRegistrationCommand, BaseResponse<RegistrationOverview>>
+    CreateRegistrationCommandHandler : IRequestHandler<CreateRegistrationCommand, BaseResponse<RegistrationDetails>>
 {
     private readonly ICloudinaryService _cloudinaryService;
     private readonly RegistrationServiceDbContext _context;
@@ -22,7 +22,7 @@ public class
         _context = context;
     }
 
-    public async Task<BaseResponse<RegistrationOverview>> Handle(CreateRegistrationCommand request,
+    public async Task<BaseResponse<RegistrationDetails>> Handle(CreateRegistrationCommand request,
         CancellationToken cancellationToken)
     {
         try
@@ -36,7 +36,7 @@ public class
 
             if (category == null)
             {
-                return BaseResponse<RegistrationOverview>.BadRequest(new List<string>
+                return BaseResponse<RegistrationDetails>.BadRequest(new List<string>
                     { $"Category with Id: {request.CategoryId} not found" });
             }
 
@@ -48,6 +48,7 @@ public class
                 CreatedAt = DateTime.UtcNow.Date,
                 LastUpdatedAt = DateTime.UtcNow.Date,
                 CategoryId = request.CategoryId,
+                OwnerId = request.GroupId.HasValue ? request.GroupId.Value : request.UserId
             };
 
             var images = ExtractImages(request.Content);
@@ -68,19 +69,19 @@ public class
             await _context.SaveChangesAsync(cancellationToken);
 
 
-            var registrationOverview = GenericMapper<Registration, RegistrationOverview>.Map(entity);
+            var registrationOverview = GenericMapper<Registration, RegistrationDetails>.Map(entity);
             registrationOverview.CategoryColor = category.Color;
 
             //await SendEvent(registrationOverview, category);
 
 
-            var result = BaseResponse<RegistrationOverview>.Ok(registrationOverview);
+            var result = BaseResponse<RegistrationDetails>.Ok(registrationOverview);
 
             return result;
         }
         catch (Exception exception)
         {
-            var result = BaseResponse<RegistrationOverview>.BadRequest(new List<string> { exception.Message });
+            var result = BaseResponse<RegistrationDetails>.BadRequest(new List<string> { exception.Message });
             return result;
         }
     }
@@ -117,7 +118,7 @@ public class
         return "";
     }
 
-    /*private async Task SendEvent(RegistrationOverview registration, Category category)
+    /*private async Task SendEvent(RegistrationDetails registration, Category category)
     {
         var groupCategories = category.GroupCategories;
 

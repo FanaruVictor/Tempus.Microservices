@@ -14,6 +14,7 @@ namespace RegistrationService.Data.Context.Configuration
             builder.Property(x => x.Content).IsRequired();
             builder.Property(x => x.Description).IsRequired();
             builder.Property(x => x.CategoryId).IsRequired();
+            builder.Property(x => x.OwnerId).IsRequired();
         }
     }
 }

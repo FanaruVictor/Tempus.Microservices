@@ -4,6 +4,7 @@ using UserService.Data;
 using UserService.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+
 builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly());
 builder.Configuration.AddEnvironmentVariables();
 
@@ -15,12 +16,14 @@ builder.Services.AddDb(builder.Configuration);
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
 
+var allowedOrigin = "*";
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
         policyBuilder =>
         {
-            policyBuilder.AllowAnyOrigin();
+            policyBuilder.WithOrigins([allowedOrigin]);
             policyBuilder.AllowAnyHeader();
             policyBuilder.AllowAnyMethod();
         });

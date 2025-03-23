@@ -29,8 +29,15 @@ public class DeleteCategoryCommandHandler(CategoryServiceDbContext context) : IR
                 return result;
             }
 
+            if ((request.GroupId.HasValue && request.GroupId.Value != category.OwnerId) || request.UserId != category.Id)
+            {
+                return BaseResponse<Guid>.Forbbiden();
+            }
+
             _context.Categories
                 .Remove(category);
+
+            await _context.SaveChangesAsync(cancellationToken);
 
             result = BaseResponse<Guid>.Ok(deletedCategoryId);
             return result;

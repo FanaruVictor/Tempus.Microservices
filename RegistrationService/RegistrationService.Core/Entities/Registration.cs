@@ -8,4 +8,5 @@ public class Registration
     public DateTime CreatedAt { get; set; }
     public DateTime LastUpdatedAt { get; set; }
     public Guid CategoryId { get; set; }
+    public Guid OwnerId { get; set; }
 }

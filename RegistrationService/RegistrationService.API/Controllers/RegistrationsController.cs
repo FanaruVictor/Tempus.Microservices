@@ -31,7 +31,7 @@ public class RegistrationsController : BaseController
     /// <param name="query"></param>
     /// <returns></returns>
     [HttpGet]
-    public async Task<ActionResult<List<RegistrationOverview>>> GetAll([FromQuery] GetAllRegistrationsQuery query)
+    public async Task<ActionResult<List<RegistrationDetails>>> GetAll([FromQuery] GetAllRegistrationsQuery query)
     {
         return HandleResponse(await _mediator.Send(query));
     }
@@ -42,7 +42,7 @@ public class RegistrationsController : BaseController
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpGet("{id}")]
-    public async Task<ActionResult<RegistrationDetails>> GetById([FromRoute] Guid id, [FromQuery] Guid? groupId)
+    public async Task<ActionResult<RegistrationDetails>> GetById([FromRoute] Guid id, [FromQuery] Guid groupId)
     {
         return HandleResponse(await _mediator.Send(new GetRegistrationByIdQuery { Id = id, GroupId = groupId }));
     }
@@ -53,7 +53,7 @@ public class RegistrationsController : BaseController
     /// <param name="command"></param>
     /// <returns></returns>
     [HttpPost]
-    public async Task<ActionResult<RegistrationOverview>> Create([FromBody] CreateRegistrationCommand command)
+    public async Task<ActionResult<RegistrationDetails>> Create([FromBody] CreateRegistrationCommand command)
     {
         return HandleResponse(await _mediator.Send(command));
     }
@@ -75,7 +75,7 @@ public class RegistrationsController : BaseController
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpDelete("{id}")]
-    public async Task<ActionResult<Guid>> Delete([FromRoute] Guid id, [FromQuery] Guid? groupId)
+    public async Task<ActionResult<Guid>> Delete([FromRoute] Guid id, [FromQuery] Guid groupId)
 
     {
         return HandleResponse(await _mediator.Send(new DeleteRegistrationCommand
@@ -90,7 +90,7 @@ public class RegistrationsController : BaseController
     /// </summary>
     /// <returns></returns>
     [HttpGet("lastUpdated")]
-    public async Task<ActionResult<BaseRegistration>> GetLastUpdated()
+    public async Task<ActionResult<RegistrationDetails>> GetLastUpdated()
     {
         return HandleResponse(await _mediator.Send(new GetLastUpdatedRegsitrationQuery()));
     }

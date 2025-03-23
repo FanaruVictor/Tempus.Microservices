@@ -28,6 +28,11 @@ public class UpdateCategoryCommandHandler(CategoryServiceDbContext context) : IR
                     $"Category with Id: {request.Id} not found.");
             }
 
+            if ((request.GroupId.HasValue && request.GroupId.Value != entity.OwnerId) || request.UserId != entity.Id)
+            {
+                return BaseResponse<BaseCategory>.Forbbiden();
+            }
+
             entity = new Category
             {
                 Id = entity.Id,
@@ -35,6 +40,7 @@ public class UpdateCategoryCommandHandler(CategoryServiceDbContext context) : IR
                 CreatedAt = entity.CreatedAt,
                 LastUpdatedAt = DateTime.UtcNow,
                 Color = request.Color,
+                OwnerId = entity.OwnerId
             };
 
             _context.Categories.Update(entity);

@@ -1,5 +1,6 @@
 ﻿using APIGatewat.IServices;
 using APIGatewat.Models;
+using APIGateway.Models.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

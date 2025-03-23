@@ -1,4 +1,5 @@
 ﻿using APIGatewat.Models;
+using APIGateway.Models.User;
 
 namespace APIGatewat.IServices;
 

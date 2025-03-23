@@ -1,5 +1,6 @@
 ﻿using APIGateway.IServices;
 using APIGateway.Models;
+using APIGateway.Models.User;
 using Newtonsoft.Json;
 using System.Text;
 
@@ -28,6 +29,8 @@ namespace APIGateway.Services
 
             var responseObject = await httpClient.SendAsync(request);
 
+            responseObject.EnsureSuccessStatusCode();
+
             var responseString = await responseObject.Content.ReadAsStringAsync();
 
             var response = JsonConvert.DeserializeObject<HttpResponse<UserDetails>>(responseString);
@@ -44,6 +47,8 @@ namespace APIGateway.Services
             using var httpClient = new HttpClient();
 
             var responseObject = await httpClient.SendAsync(request);
+
+            responseObject.EnsureSuccessStatusCode();
 
             var responseString = await responseObject.Content.ReadAsStringAsync();
 
@@ -62,6 +67,8 @@ namespace APIGateway.Services
 
             var responseObject = await httpClient.SendAsync(request);
 
+            responseObject.EnsureSuccessStatusCode();
+
             var responseString = await responseObject.Content.ReadAsStringAsync();
 
             var response = JsonConvert.DeserializeObject<HttpResponse<List<UserDetails>>>(responseString);
@@ -78,6 +85,8 @@ namespace APIGateway.Services
             using var httpClient = new HttpClient();
 
             var responseObject = await httpClient.SendAsync(request);
+
+            responseObject.EnsureSuccessStatusCode();
 
             var responseString = await responseObject.Content.ReadAsStringAsync();
 
@@ -96,6 +105,8 @@ namespace APIGateway.Services
 
             var responseObject = await httpClient.SendAsync(request);
 
+            responseObject.EnsureSuccessStatusCode();
+
             var responseString = await responseObject.Content.ReadAsStringAsync();
 
             var response = JsonConvert.DeserializeObject<HttpResponse<List<UserEmail>>>(responseString);
@@ -112,6 +123,8 @@ namespace APIGateway.Services
             using var httpClient = new HttpClient();
 
             var responseObject = await httpClient.SendAsync(request);
+
+            responseObject.EnsureSuccessStatusCode();
 
             var responseString = await responseObject.Content.ReadAsStringAsync();
 
@@ -151,6 +164,8 @@ namespace APIGateway.Services
             using var httpClient = new HttpClient();
 
             var responseObject = await httpClient.SendAsync(request);
+
+            responseObject.EnsureSuccessStatusCode();
 
             var responseString = await responseObject.Content.ReadAsStringAsync();
 

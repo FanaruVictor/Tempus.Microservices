@@ -27,6 +27,11 @@ public class GetCategoryByIdQueryHandler(CategoryServiceDbContext context) : IRe
                 return BaseResponse<BaseCategory>.NotFound("Category not found.");
             }
 
+            if ((request.GroupId.HasValue && category.OwnerId != request.GroupId.Value) || category.OwnerId != request.UserId)
+            {
+                return BaseResponse<BaseCategory>.Forbbiden();
+            }
+
             var baseCategory = GenericMapper<Category, BaseCategory>.Map(category);
             var response = BaseResponse<BaseCategory>.Ok(baseCategory);
 

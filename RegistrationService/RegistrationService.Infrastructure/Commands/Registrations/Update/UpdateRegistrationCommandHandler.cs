@@ -41,6 +41,10 @@ public class
                 return BaseResponse<RegistrationDetails>.NotFound($"Registration with Id: {request.Id} was not found");
             }
 
+            if ((request.GroupId.HasValue && entity.OwnerId != request.GroupId.Value) || entity.OwnerId != request.UserId)
+            {
+                return BaseResponse<RegistrationDetails>.Forbbiden();
+            }
 
             entity = new Registration
             {
@@ -132,7 +136,7 @@ public class
             groupUsers = groupUsers.Where(x => x.UserId != request.UserId).ToList();
             foreach (var groupUser in groupUsers)
             {
-                var registrationOverview = GenericMapper<Registration, RegistrationOverview>.Map(registration);
+                var registrationOverview = GenericMapper<Registration, RegistrationDetails>.Map(registration);
                 registrationOverview.CategoryColor = category.Color;
                 if (groupUser.UserId != request.UserId)
                     await _clientEventSender.SendRegistrationUpdated(registrationOverview, groupUser.GroupId,

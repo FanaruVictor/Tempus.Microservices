@@ -9,7 +9,7 @@ namespace RegistrationService.Infrastructure.Queries.Registrations.GetAll;
 
 public class
     GetAllRegistrationsQueryHandler : IRequestHandler<GetAllRegistrationsQuery,
-        BaseResponse<List<RegistrationOverview>>>
+        BaseResponse<List<RegistrationDetails>>>
 {
     private readonly RegistrationServiceDbContext _context;
 
@@ -18,7 +18,7 @@ public class
         _context = context;
     }
 
-    public async Task<BaseResponse<List<RegistrationOverview>>> Handle(GetAllRegistrationsQuery request,
+    public async Task<BaseResponse<List<RegistrationDetails>>> Handle(GetAllRegistrationsQuery request,
         CancellationToken cancellationToken)
     {
         try
@@ -47,19 +47,19 @@ public class
                     //should get the category based on registration.CategoryId and get the color
                     var categoryColor = "";
 
-                    var currentRegistration = GenericMapper<Registration, RegistrationOverview>.Map(x);
+                    var currentRegistration = GenericMapper<Registration, RegistrationDetails>.Map(x);
                     currentRegistration.CategoryColor = categoryColor;
 
                     return currentRegistration;
                 })
                 .ToList();
 
-            var response = BaseResponse<List<RegistrationOverview>>.Ok(registrationsOverview);
+            var response = BaseResponse<List<RegistrationDetails>>.Ok(registrationsOverview);
             return response;
         }
         catch (Exception exception)
         {
-            var response = BaseResponse<List<RegistrationOverview>>.BadRequest(new List<string> { exception.Message });
+            var response = BaseResponse<List<RegistrationDetails>>.BadRequest(new List<string> { exception.Message });
             return response;
         }
     }

@@ -17,47 +17,22 @@ public class CreateCategoryCommandHandler(CategoryServiceDbContext context) : IR
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            Category entity;
-
-            if (request.GroupId.HasValue)
+            var category = new Category
             {
-                var groupCategory = new GroupCategory
-                {
-                    Id = Guid.NewGuid(),
-                    Name = request.Name,
-                    CreatedAt = DateTime.UtcNow,
-                    LastUpdatedAt = DateTime.UtcNow,
-                    Color = request.Color,
-                    GroupId = request.GroupId.Value
-                };
+                Id = Guid.NewGuid(),
+                Name = request.Name,
+                CreatedAt = DateTime.UtcNow,
+                LastUpdatedAt = DateTime.UtcNow,
+                Color = request.Color,
+                OwnerId = request.GroupId.HasValue && request.GroupId.Value != Guid.Empty ? request.GroupId.Value : request.UserId
+            };
 
-                await _context.Categories.AddAsync(groupCategory, cancellationToken);
-
-                entity = groupCategory;
-            }
-            else
-            {
-                var category = new Category
-                {
-                    Id = Guid.NewGuid(),
-                    Name = request.Name,
-                    CreatedAt = DateTime.UtcNow,
-                    LastUpdatedAt = DateTime.UtcNow,
-                    Color = request.Color,
-                    UserId = request.UserId
-                };
-
-                await _context.Categories.AddAsync(category, cancellationToken);
-
-                entity = category;
-            }
+            await _context.Categories.AddAsync(category, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
 
             BaseResponse<BaseCategory> result;
 
-
-            await _context.SaveChangesAsync(cancellationToken);
-
-            var baseCategory = GenericMapper<Category, BaseCategory>.Map(entity);
+            var baseCategory = GenericMapper<Category, BaseCategory>.Map(category);
             result =
                 BaseResponse<BaseCategory>.Ok(baseCategory);
 
