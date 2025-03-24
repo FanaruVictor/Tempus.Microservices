@@ -29,7 +29,7 @@ public class DeleteCategoryCommandHandler(CategoryServiceDbContext context) : IR
                 return result;
             }
 
-            if ((request.GroupId.HasValue && request.GroupId.Value != category.OwnerId) || request.UserId != category.Id)
+            if ((request.GroupId.HasValue && request.GroupId.Value != category.OwnerId && request.GroupId.Value != Guid.Empty) || request.UserId != category.Id)
             {
                 return BaseResponse<Guid>.Forbbiden();
             }

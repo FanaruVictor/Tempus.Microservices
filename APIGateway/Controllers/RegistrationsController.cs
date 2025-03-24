@@ -43,7 +43,7 @@ namespace APIGateway.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<RegistrationDetails>> Create([FromBody] NewRegistration newRegistration)
+        public async Task<ActionResult<RegistrationDetails>> Create([FromBody] NewRegistration newRegistration, [FromQuery] Guid groupId)
         {
             var userId = GetUserIdFromRequest();
 
@@ -52,7 +52,7 @@ namespace APIGateway.Controllers
                 return Unauthorized();
             }
 
-            var result = await this.registrationService.Create(userId, newRegistration);
+            var result = await this.registrationService.Create(userId, newRegistration, groupId);
 
             if (result == null)
             {
@@ -63,7 +63,7 @@ namespace APIGateway.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult<RegistrationDetails>> Update([FromBody] RegistrationInfo registrationInfo)
+        public async Task<ActionResult<RegistrationDetails>> Update([FromBody] RegistrationInfo registrationInfo, [FromQuery] Guid groupId)
         {
             var userId = GetUserIdFromRequest();
 
@@ -72,7 +72,7 @@ namespace APIGateway.Controllers
                 return Unauthorized();
             }
 
-            var result = await this.registrationService.Update(userId, registrationInfo);
+            var result = await this.registrationService.Update(userId, registrationInfo, groupId);
 
             if (result == null)
             {

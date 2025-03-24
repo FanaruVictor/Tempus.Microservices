@@ -10,18 +10,21 @@ namespace APIGateway.Services
     {
         private readonly string categoryServiceBaseUrl = configuration["categoryServiceBaseURL"];
 
-        public async Task<BaseCategory> Create(Guid userId, NewCategory newCategory)
+        public async Task<BaseCategory> Create(Guid userId, NewCategory newCategory, Guid groupId)
         {
             var json = JsonConvert.SerializeObject(new
             {
                 newCategory.Name,
                 newCategory.Color,
-                newCategory.GroupId,
             });
 
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var request = new HttpRequestMessage(HttpMethod.Post, $"{this.categoryServiceBaseUrl}");
+            var url = groupId != Guid.Empty
+                ? $"{this.categoryServiceBaseUrl}?groupId={groupId}"
+                : $"{this.categoryServiceBaseUrl}";
+
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
 
             request.Headers.Add("UserId", userId.ToString());
             request.Content = content;
@@ -41,7 +44,11 @@ namespace APIGateway.Services
 
         public async Task<Guid> Delete(Guid userId, Guid id, Guid groupId)
         {
-            var request = new HttpRequestMessage(HttpMethod.Delete, $"{this.categoryServiceBaseUrl}/{id}?groupId={groupId}");
+            var url = groupId != Guid.Empty
+                ? $"{this.categoryServiceBaseUrl}/{id}?groupId={groupId}"
+                : $"{this.categoryServiceBaseUrl}/{id}";
+
+            var request = new HttpRequestMessage(HttpMethod.Delete, url);
 
             request.Headers.Add("UserId", userId.ToString());
 
@@ -83,8 +90,11 @@ namespace APIGateway.Services
 
         public async Task<BaseCategory> GetById(Guid userId, Guid id, Guid groupId)
         {
+            var url = groupId != Guid.Empty
+                ? $"{this.categoryServiceBaseUrl}/{id}?groupId={groupId}"
+                : this.categoryServiceBaseUrl;
 
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{this.categoryServiceBaseUrl}/{id}?groupId={groupId}");
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
 
             request.Headers.Add("UserId", userId.ToString());
 
@@ -112,7 +122,11 @@ namespace APIGateway.Services
 
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var request = new HttpRequestMessage(HttpMethod.Put, $"{this.categoryServiceBaseUrl}?groupId={groupId}");
+            var url = groupId != Guid.Empty
+                ? $"{this.categoryServiceBaseUrl}?groupId={groupId}"
+                : this.categoryServiceBaseUrl;
+
+            var request = new HttpRequestMessage(HttpMethod.Put, url);
 
             request.Headers.Add("UserId", userId.ToString());
             request.Content = content;

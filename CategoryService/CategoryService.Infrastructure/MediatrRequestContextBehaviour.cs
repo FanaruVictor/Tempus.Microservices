@@ -25,7 +25,6 @@ public class MediatrRequestContextBehaviour<TRequest, TResponse> : IPipelineBeha
             return await next();
         }
 
-        return await next();
         throw new UnauthorizedAccessException("User doesn't have the necessary claims");
 
     }

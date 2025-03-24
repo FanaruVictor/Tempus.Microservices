@@ -53,8 +53,9 @@ public class RegistrationsController : BaseController
     /// <param name="command"></param>
     /// <returns></returns>
     [HttpPost]
-    public async Task<ActionResult<RegistrationDetails>> Create([FromBody] CreateRegistrationCommand command)
+    public async Task<ActionResult<RegistrationDetails>> Create([FromBody] CreateRegistrationCommand command, [FromQuery] Guid groupId)
     {
+        command.GroupId = groupId;
         return HandleResponse(await _mediator.Send(command));
     }
 
@@ -64,8 +65,9 @@ public class RegistrationsController : BaseController
     /// <param name="command"></param>
     /// <returns></returns>
     [HttpPut]
-    public async Task<ActionResult<RegistrationDetails>> Update([FromBody] UpdateRegistrationCommand command)
+    public async Task<ActionResult<RegistrationDetails>> Update([FromBody] UpdateRegistrationCommand command, [FromQuery] Guid groupId)
     {
+        command.GroupId = groupId;
         return HandleResponse(await _mediator.Send(command));
     }
 

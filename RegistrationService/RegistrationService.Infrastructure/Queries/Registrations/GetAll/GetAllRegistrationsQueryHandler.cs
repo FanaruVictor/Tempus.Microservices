@@ -1,9 +1,14 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using RegistrationService.Core.Commons;
 using RegistrationService.Core.Entities;
 using RegistrationService.Core.Models.Registrations;
 using RegistrationService.Data.Context;
 using RegistrationService.Infrastructure.Commons;
+using RegistrationService.Infrastructure.Models;
+using System.Data.Entity;
+using System.Text;
 
 namespace RegistrationService.Infrastructure.Queries.Registrations.GetAll;
 
@@ -12,10 +17,12 @@ public class
         BaseResponse<List<RegistrationDetails>>>
 {
     private readonly RegistrationServiceDbContext _context;
+    private readonly string? _categoryServiceBaseUrl;
 
-    public GetAllRegistrationsQueryHandler(RegistrationServiceDbContext context)
+    public GetAllRegistrationsQueryHandler(RegistrationServiceDbContext context, IConfiguration configuration)
     {
         _context = context;
+        _categoryServiceBaseUrl = configuration["categoryServiceBaseURL"];
     }
 
     public async Task<BaseResponse<List<RegistrationDetails>>> Handle(GetAllRegistrationsQuery request,
@@ -25,30 +32,19 @@ public class
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            List<Registration> registrations = null;
-
-            if (request.GroupId.HasValue)
-            {
-                //get all registrations from group with groupId
-                //get all categories with groupId
-                //based on categories get the registration
-            }
-            else
-            {
-                //get all registration for user based on userId
-                //get all categories for user
-                //based on categories get registrations
-            }
-
+            var registrations = _context.Registrations
+                .AsNoTracking()
+                .Where(x => x.OwnerId == (request.GroupId.HasValue && request.GroupId.Value != Guid.Empty ? request.GroupId : request.UserId))
+                .ToList();
 
             var registrationsOverview = registrations
                 .Select(x =>
                 {
-                    //should get the category based on registration.CategoryId and get the color
-                    var categoryColor = "";
+                    var category = GetCategory(x.CategoryId, request.UserId, request.GroupId);
 
                     var currentRegistration = GenericMapper<Registration, RegistrationDetails>.Map(x);
-                    currentRegistration.CategoryColor = categoryColor;
+
+                    currentRegistration.CategoryColor = category.Color;
 
                     return currentRegistration;
                 })
@@ -62,5 +58,33 @@ public class
             var response = BaseResponse<List<RegistrationDetails>>.BadRequest(new List<string> { exception.Message });
             return response;
         }
+    }
+
+    private BaseCategory GetCategory(Guid id, Guid userId, Guid? groupId)
+    {
+        var url = groupId.HasValue && groupId.Value != Guid.Empty
+            ? $"{_categoryServiceBaseUrl}/{id}?groupId={groupId.Value}"
+            : $"{_categoryServiceBaseUrl}/{id}";
+
+        var request = new HttpRequestMessage(HttpMethod.Get, url);
+
+        request.Headers.Add("UserId", userId.ToString());
+
+        using var httpClient = new HttpClient();
+
+        var responseObject = httpClient.Send(request);
+
+        responseObject.EnsureSuccessStatusCode();
+
+        string result = "";
+        using (var stream = responseObject.Content.ReadAsStream())
+        using (var reader = new StreamReader(stream, Encoding.UTF8))
+        {
+            result = reader.ReadToEnd();
+        }
+
+        var response = JsonConvert.DeserializeObject<BaseResponse<BaseCategory>>(result);
+
+        return response.Resource;
     }
 }

@@ -4,6 +4,5 @@
     {
         public string Name { get; init; }
         public string? Color { get; init; }
-        public Guid? GroupId { get; set; }
     }
 }

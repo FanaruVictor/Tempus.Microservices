@@ -52,8 +52,9 @@ public class CategoriesController : BaseController
     /// <param name="command"></param>
     /// <returns></returns>
     [HttpPost]
-    public async Task<ActionResult<BaseCategory>> Create([FromBody] CreateCategoryCommand command)
+    public async Task<ActionResult<BaseCategory>> Create([FromBody] CreateCategoryCommand command, [FromQuery] Guid groupId)
     {
+        command.GroupId = groupId;
         return HandleResponse(await _mediator.Send(command));
     }
 
@@ -63,8 +64,9 @@ public class CategoriesController : BaseController
     /// <param name="command"></param>
     /// <returns></returns>
     [HttpPut]
-    public async Task<ActionResult<BaseCategory>> Update([FromBody] UpdateCategoryCommand command)
+    public async Task<ActionResult<BaseCategory>> Update([FromBody] UpdateCategoryCommand command, [FromQuery] Guid groupId)
     {
+        command.GroupId = groupId;
         return HandleResponse(await _mediator.Send(command));
     }
 

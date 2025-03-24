@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RegistrationService.Core.Commons;
 using CustomStatusCodes = RegistrationService.Core.Commons.StatusCodes;
@@ -9,7 +8,7 @@ namespace RegistrationService.API.Controllers;
 /// <summary>
 ///     Base controller, every controller will inherited this one
 /// </summary>
-[Authorize, ApiController, Route("api/[controller]")]
+[ApiController, Route("api/[controller]")]
 public class BaseController : ControllerBase
 {
     /// <summary>

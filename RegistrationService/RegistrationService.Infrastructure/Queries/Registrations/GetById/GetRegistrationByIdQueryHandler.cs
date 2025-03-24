@@ -34,7 +34,7 @@ public class
                 return BaseResponse<RegistrationDetails>.NotFound("Registration not found!");
             }
 
-            if ((request.GroupId.HasValue && registration.OwnerId != request.GroupId.Value) || registration.OwnerId != request.UserId)
+            if ((request.GroupId.HasValue && registration.OwnerId != request.GroupId.Value && request.GroupId != Guid.Empty) || registration.OwnerId != request.UserId)
             {
                 return BaseResponse<RegistrationDetails>.Forbbiden();
             }

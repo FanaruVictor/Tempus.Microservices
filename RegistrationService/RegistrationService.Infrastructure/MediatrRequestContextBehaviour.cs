@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using System.Security.Claims;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using RegistrationService.Infrastructure.Commons;
 
@@ -16,27 +14,17 @@ public class MediatrRequestContextBehaviour<TRequest, TResponse> : IPipelineBeha
         _contextAccessor = contextAccessor;
     }
 
-    [DebuggerStepThrough]
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
-        var userIdClaim =
-            _contextAccessor.HttpContext.User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier);
-
-        if (userIdClaim == null)
-        {
-            throw new UnauthorizedAccessException("User doesn't have the necessary claims");
-        }
-
-        if(Guid.TryParse(userIdClaim?.Value, out var userId))
+        if ((_contextAccessor.HttpContext?.Request.Headers.TryGetValue("UserId", out var userIdHeader) ?? false)
+            && Guid.TryParse(userIdHeader.ToString(), out var userId))
         {
             request.UserId = userId;
+
+            return await next();
         }
 
-        var response = await next();
-        return response;
-
-
-        return await next();
+        throw new UnauthorizedAccessException("User doesn't have the necessary claims");
     }
 }

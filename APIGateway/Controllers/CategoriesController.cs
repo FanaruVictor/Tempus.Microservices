@@ -45,7 +45,7 @@ public class CategoriesController(IHttpContextAccessor contextAccessor, ICategor
     }
 
     [HttpPost]
-    public async Task<ActionResult<BaseCategory>> Create([FromBody] NewCategory newCategory)
+    public async Task<ActionResult<BaseCategory>> Create([FromBody] NewCategory newCategory, [FromQuery] Guid groupId)
     {
         var userId = GetUserIdFromRequest();
 
@@ -54,7 +54,7 @@ public class CategoriesController(IHttpContextAccessor contextAccessor, ICategor
             return Unauthorized();
         }
 
-        var result = await this.categoryService.Create(userId, newCategory);
+        var result = await this.categoryService.Create(userId, newCategory, groupId);
 
         if (result == null)
         {

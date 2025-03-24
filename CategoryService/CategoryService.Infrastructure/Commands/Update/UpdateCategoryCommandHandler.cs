@@ -28,7 +28,7 @@ public class UpdateCategoryCommandHandler(CategoryServiceDbContext context) : IR
                     $"Category with Id: {request.Id} not found.");
             }
 
-            if ((request.GroupId.HasValue && request.GroupId.Value != entity.OwnerId) || request.UserId != entity.Id)
+            if ((request.GroupId.HasValue && request.GroupId.Value != entity.OwnerId && request.GroupId.Value != Guid.Empty) || request.UserId != entity.Id)
             {
                 return BaseResponse<BaseCategory>.Forbbiden();
             }

@@ -1,4 +1,6 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using RegistrationService.Core.Commons;
 using RegistrationService.Core.Entities;
 using RegistrationService.Core.Models.Registrations;
@@ -15,11 +17,13 @@ public class
 {
     private readonly ICloudinaryService _cloudinaryService;
     private readonly RegistrationServiceDbContext _context;
+    private readonly object _categoryServiceBaseUrl;
 
-    public CreateRegistrationCommandHandler(ICloudinaryService cloudinaryService, RegistrationServiceDbContext context)
+    public CreateRegistrationCommandHandler(ICloudinaryService cloudinaryService, RegistrationServiceDbContext context, IConfiguration configuration)
     {
         _cloudinaryService = cloudinaryService;
         _context = context;
+        _categoryServiceBaseUrl = configuration["categoryServiceBaseURL"];
     }
 
     public async Task<BaseResponse<RegistrationDetails>> Handle(CreateRegistrationCommand request,
@@ -32,7 +36,7 @@ public class
 
             //should get the category from categoryService
 
-            Category category = null;
+            BaseCategory category = await GetCategoryAsync(request.CategoryId, request.UserId, request.GroupId);
 
             if (category == null)
             {
@@ -48,7 +52,7 @@ public class
                 CreatedAt = DateTime.UtcNow.Date,
                 LastUpdatedAt = DateTime.UtcNow.Date,
                 CategoryId = request.CategoryId,
-                OwnerId = request.GroupId.HasValue ? request.GroupId.Value : request.UserId
+                OwnerId = request.GroupId.HasValue && request.GroupId.Value != Guid.Empty ? request.GroupId.Value : request.UserId
             };
 
             var images = ExtractImages(request.Content);
@@ -116,6 +120,29 @@ public class
         }
 
         return "";
+    }
+
+    private async Task<BaseCategory> GetCategoryAsync(Guid id, Guid userId, Guid? groupId)
+    {
+        var url = groupId.HasValue && groupId.Value != Guid.Empty
+            ? $"{_categoryServiceBaseUrl}/{id}?groupId={groupId.Value}"
+            : $"{_categoryServiceBaseUrl}/{id}";
+
+        var request = new HttpRequestMessage(HttpMethod.Get, url);
+
+        request.Headers.Add("UserId", userId.ToString());
+
+        using var httpClient = new HttpClient();
+
+        var responseObject = await httpClient.SendAsync(request);
+
+        responseObject.EnsureSuccessStatusCode();
+
+        var responseString = await responseObject.Content.ReadAsStringAsync();
+
+        var response = JsonConvert.DeserializeObject<BaseResponse<BaseCategory>>(responseString);
+
+        return response.Resource;
     }
 
     /*private async Task SendEvent(RegistrationDetails registration, Category category)
