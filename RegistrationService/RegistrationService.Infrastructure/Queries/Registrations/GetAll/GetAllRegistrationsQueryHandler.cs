@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using RegistrationService.Core.Commons;
@@ -7,7 +8,6 @@ using RegistrationService.Core.Models.Registrations;
 using RegistrationService.Data.Context;
 using RegistrationService.Infrastructure.Commons;
 using RegistrationService.Infrastructure.Models;
-using System.Data.Entity;
 using System.Text;
 
 namespace RegistrationService.Infrastructure.Queries.Registrations.GetAll;

@@ -1,10 +1,10 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using RegistrationService.Core.Commons;
 using RegistrationService.Core.Entities;
 using RegistrationService.Core.Models.Registrations;
 using RegistrationService.Data.Context;
 using RegistrationService.Infrastructure.Commons;
-using System.Data.Entity;
 
 namespace RegistrationService.Infrastructure.Queries.Registrations.LastUpdated;
 
@@ -28,12 +28,13 @@ public class
 
             var registration = await _context.Registrations
                 .AsNoTracking()
+                .Where(x => x.OwnerId == (request.GroupId.HasValue && request.GroupId.Value != Guid.Empty ? request.GroupId.Value : request.UserId))
                 .OrderByDescending(x => x.LastUpdatedAt)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (registration == null)
             {
-                return BaseResponse<RegistrationDetails>.NotFound("Registration not found!");
+                return BaseResponse<RegistrationDetails>.Ok(null);
             }
 
             var response =

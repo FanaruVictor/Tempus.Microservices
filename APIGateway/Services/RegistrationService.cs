@@ -47,7 +47,7 @@ namespace APIGateway.Services
         {
             var url = groupId != Guid.Empty
                 ? $"{this.registrationServiceBaseUrl}/{id}?groupId={groupId}"
-                : $"{this.registrationServiceBaseUrl}";
+                : $"{this.registrationServiceBaseUrl}/{id}";
 
             var request = new HttpRequestMessage(HttpMethod.Delete, url);
 
@@ -112,9 +112,13 @@ namespace APIGateway.Services
             return response.Resource;
         }
 
-        public async Task<RegistrationDetails> GetLastUpdated(Guid userId)
+        public async Task<RegistrationDetails> GetLastUpdated(Guid userId, Guid? groupId)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{this.registrationServiceBaseUrl}/lastUpdated");
+            var url = groupId.HasValue && groupId.Value != Guid.Empty
+                ? $"{this.registrationServiceBaseUrl}/lastUpdated?groupId={groupId}"
+                : $"{this.registrationServiceBaseUrl}/lastUpdated";
+
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
 
             request.Headers.Add("UserId", userId.ToString());
 

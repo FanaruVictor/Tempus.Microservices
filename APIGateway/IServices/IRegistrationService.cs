@@ -9,6 +9,6 @@ namespace APIGateway.IServices
         Task<RegistrationDetails> Create(Guid userId, NewRegistration newRegistration, Guid groupId);
         Task<RegistrationDetails> Update(Guid userId, RegistrationInfo registrationInfo, Guid groupId);
         Task<Guid> Delete(Guid userId, Guid id, Guid groupId);
-        Task<RegistrationDetails> GetLastUpdated(Guid userId);
+        Task<RegistrationDetails> GetLastUpdated(Guid userId, Guid? groupId);
     }
 }

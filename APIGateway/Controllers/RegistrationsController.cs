@@ -17,7 +17,12 @@ namespace APIGateway.Controllers
                 return Unauthorized();
             }
 
-            var response = this.registrationService.GetAll(userId, groupId);
+            var response = await this.registrationService.GetAll(userId, groupId);
+
+            if (response == null || !response.Any())
+            {
+                return NoContent();
+            }
 
             return Ok(response);
         }
@@ -32,7 +37,7 @@ namespace APIGateway.Controllers
                 return Unauthorized();
             }
 
-            var response = this.registrationService.GetById(userId, id, groupId);
+            var response = await this.registrationService.GetById(userId, id, groupId);
 
             if (response == null)
             {
@@ -103,7 +108,7 @@ namespace APIGateway.Controllers
         }
 
         [HttpGet("lastUpdated")]
-        public async Task<ActionResult<RegistrationDetails>> GetLastUpdated()
+        public async Task<ActionResult<RegistrationDetails>> GetLastUpdated([FromQuery] Guid groupId)
         {
             var userId = GetUserIdFromRequest();
 
@@ -112,7 +117,12 @@ namespace APIGateway.Controllers
                 return Unauthorized();
             }
 
-            var response = await this.registrationService.GetLastUpdated(userId);
+            var response = await this.registrationService.GetLastUpdated(userId, groupId);
+
+            if (response == null)
+            {
+                return NoContent();
+            }
 
             return Ok(response);
         }

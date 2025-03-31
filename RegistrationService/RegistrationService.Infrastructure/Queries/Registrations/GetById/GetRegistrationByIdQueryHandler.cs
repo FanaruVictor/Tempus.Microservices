@@ -1,10 +1,10 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using RegistrationService.Core.Commons;
 using RegistrationService.Core.Entities;
 using RegistrationService.Core.Models.Registrations;
 using RegistrationService.Data.Context;
 using RegistrationService.Infrastructure.Commons;
-using System.Data.Entity;
 
 namespace RegistrationService.Infrastructure.Queries.Registrations.GetById;
 
@@ -27,14 +27,14 @@ public class
 
             var registration = await _context.Registrations
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == request.Id);
+                .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
             if (registration == null)
             {
                 return BaseResponse<RegistrationDetails>.NotFound("Registration not found!");
             }
 
-            if ((request.GroupId.HasValue && registration.OwnerId != request.GroupId.Value && request.GroupId != Guid.Empty) || registration.OwnerId != request.UserId)
+            if ((request.GroupId.HasValue && registration.OwnerId != request.GroupId.Value && request.GroupId.Value != Guid.Empty) && registration.OwnerId != request.UserId)
             {
                 return BaseResponse<RegistrationDetails>.Forbbiden();
             }
@@ -47,6 +47,7 @@ public class
         catch (Exception exception)
         {
             var response = BaseResponse<RegistrationDetails>.BadRequest(new List<string> { exception.Message });
+
             return response;
         }
     }

@@ -21,6 +21,12 @@ public class CategoriesController(IHttpContextAccessor contextAccessor, ICategor
 
         var response = await this.categoryService.GetAll(userId, groupId);
 
+        if (response == null || !response.Any())
+        {
+            return NoContent();
+        }
+
+
         return Ok(response);
     }
 

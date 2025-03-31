@@ -34,14 +34,16 @@ public class
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var entity = await _context.Registrations.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+            var entity = await _context.Registrations
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
             if (entity == null)
             {
                 return BaseResponse<RegistrationDetails>.NotFound($"Registration with Id: {request.Id} was not found");
             }
 
-            if ((request.GroupId.HasValue && entity.OwnerId != request.GroupId.Value && request.GroupId.Value != Guid.Empty) || entity.OwnerId != request.UserId)
+            if ((request.GroupId.HasValue && entity.OwnerId != request.GroupId.Value && request.GroupId.Value != Guid.Empty) && entity.OwnerId != request.UserId)
             {
                 return BaseResponse<RegistrationDetails>.Forbbiden();
             }
@@ -53,7 +55,8 @@ public class
                 Content = request.Content,
                 CreatedAt = entity.CreatedAt,
                 LastUpdatedAt = DateTime.UtcNow.Date,
-                CategoryId = entity.CategoryId
+                CategoryId = entity.CategoryId,
+                OwnerId = entity.OwnerId,
             };
 
             var images = ExtractImages(request.Content);

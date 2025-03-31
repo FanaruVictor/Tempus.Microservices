@@ -29,7 +29,7 @@ public class DeleteRegistrationCommandHandler : IRequestHandler<DeleteRegistrati
                 return BaseResponse<Guid>.NotFound("Registration not found!");
             }
 
-            if ((request.GroupId.HasValue && registration.OwnerId != request.GroupId.Value && request.GroupId != Guid.Empty) || registration.OwnerId != request.UserId)
+            if ((request.GroupId.HasValue && registration.OwnerId != request.GroupId.Value && request.GroupId != Guid.Empty) && registration.OwnerId != request.UserId)
             {
                 return BaseResponse<Guid>.Forbbiden();
             }

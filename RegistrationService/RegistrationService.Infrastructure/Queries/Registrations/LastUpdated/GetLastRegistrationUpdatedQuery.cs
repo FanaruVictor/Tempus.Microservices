@@ -4,4 +4,7 @@ using RegistrationService.Infrastructure.Commons;
 
 namespace RegistrationService.Infrastructure.Queries.Registrations.LastUpdated;
 
-public class GetLastUpdatedRegsitrationQuery : BaseRequest<BaseResponse<RegistrationDetails>> { }
+public class GetLastUpdatedRegsitrationQuery : BaseRequest<BaseResponse<RegistrationDetails>>
+{
+    public Guid? GroupId { get; set; }
+}

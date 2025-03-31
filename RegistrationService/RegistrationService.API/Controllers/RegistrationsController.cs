@@ -92,8 +92,11 @@ public class RegistrationsController : BaseController
     /// </summary>
     /// <returns></returns>
     [HttpGet("lastUpdated")]
-    public async Task<ActionResult<RegistrationDetails>> GetLastUpdated()
+    public async Task<ActionResult<RegistrationDetails>> GetLastUpdated([FromQuery] Guid groupId)
     {
-        return HandleResponse(await _mediator.Send(new GetLastUpdatedRegsitrationQuery()));
+        return HandleResponse(await _mediator.Send(new GetLastUpdatedRegsitrationQuery
+        {
+            GroupId = groupId
+        }));
     }
 }

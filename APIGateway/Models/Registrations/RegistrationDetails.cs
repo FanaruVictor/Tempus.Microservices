@@ -1,6 +1,6 @@
 ﻿namespace APIGateway.Models.Registrations;
 
-public class RegistrationDetails : BaseRegistration
+public class RegistrationDetails
 {
     public Guid Id { get; set; }
     public string Content { get; set; }

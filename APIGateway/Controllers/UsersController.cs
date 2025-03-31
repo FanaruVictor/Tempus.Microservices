@@ -22,6 +22,11 @@ public class UsersController(IUserService userService, IHttpContextAccessor cont
 
         var response = await this.userService.GetAll(id);
 
+        if (response == null || !response.Any())
+        {
+            return NoContent();
+        }
+
         return Ok(response);
     }
 
