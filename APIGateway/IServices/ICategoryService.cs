@@ -1,4 +1,5 @@
 ﻿using APIGateway.Models.Category;
+using Tempus.Shared.Models.Category;
 
 namespace APIGateway.IServices
 {

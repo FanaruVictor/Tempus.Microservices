@@ -1,0 +1,54 @@
+﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
+using RegistrationService.Core.Entities;
+using RegistrationService.Data.Context;
+using Tempus.Shared.Commons;
+using Tempus.Shared.Models.Registration;
+
+namespace RegistrationService.Infrastructure.Queries.Registrations.GetById;
+
+public class
+    GetRegistrationByIdQueryHandler : IRequestHandler<GetRegistrationByIdQuery, BaseResponse<RegistrationDetails>>
+{
+    private readonly RegistrationServiceDbContext _context;
+
+    public GetRegistrationByIdQueryHandler(RegistrationServiceDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<BaseResponse<RegistrationDetails>> Handle(GetRegistrationByIdQuery request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var registration = await _context.Registrations
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+
+            if(registration == null)
+            {
+                return BaseResponse<RegistrationDetails>.NotFound("Registration not found!");
+            }
+
+            if(request.GroupId.HasValue && registration.OwnerId != request.GroupId.Value &&
+               request.GroupId.Value != Guid.Empty && registration.OwnerId != request.UserId)
+            {
+                return BaseResponse<RegistrationDetails>.Forbbiden();
+            }
+
+            var response =
+                BaseResponse<RegistrationDetails>.Ok(
+                    GenericMapper<Registration, RegistrationDetails>.Map(registration));
+            return response;
+        }
+        catch(Exception exception)
+        {
+            var response = BaseResponse<RegistrationDetails>.BadRequest(new List<string> {exception.Message});
+
+            return response;
+        }
+    }
+}

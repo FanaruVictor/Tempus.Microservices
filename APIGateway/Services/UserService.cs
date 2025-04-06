@@ -3,6 +3,7 @@ using APIGateway.Models;
 using APIGateway.Models.User;
 using Newtonsoft.Json;
 using System.Text;
+using Tempus.Shared.Models.User;
 
 namespace APIGateway.Services
 {

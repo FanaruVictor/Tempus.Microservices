@@ -2,6 +2,7 @@
 using APIGateway.Models.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Tempus.Shared.Models.User;
 
 namespace APIGateway.Controllers;
 

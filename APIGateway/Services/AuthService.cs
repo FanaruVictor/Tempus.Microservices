@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Tempus.Shared.Models.User;
 using BCryptNet = BCrypt.Net;
 
 namespace APIGatewat.IServices;

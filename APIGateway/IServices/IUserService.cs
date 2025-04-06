@@ -1,4 +1,5 @@
 ﻿using APIGateway.Models.User;
+using Tempus.Shared.Models.User;
 
 namespace APIGateway.IServices
 {

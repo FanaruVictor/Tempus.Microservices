@@ -2,6 +2,7 @@
 using APIGateway.IServices;
 using APIGateway.Models.Category;
 using Microsoft.AspNetCore.Mvc;
+using Tempus.Shared.Models.Category;
 
 namespace Tempus.API.Controllers;
 

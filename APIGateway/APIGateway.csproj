@@ -20,4 +20,8 @@
     <PackageReference Include="System.Security.Claims" Version="4.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Tempus.Microservices\Shared\Tempus.Shared\Tempus.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

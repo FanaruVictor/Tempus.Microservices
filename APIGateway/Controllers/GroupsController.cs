@@ -1,6 +1,7 @@
 ﻿using APIGateway.IServices;
 using APIGateway.Models.Group;
 using Microsoft.AspNetCore.Mvc;
+using Tempus.Shared.Models.Group;
 
 namespace APIGateway.Controllers
 {

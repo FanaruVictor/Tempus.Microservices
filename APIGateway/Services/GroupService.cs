@@ -2,6 +2,7 @@
 using APIGateway.Models;
 using APIGateway.Models.Group;
 using Newtonsoft.Json;
+using Tempus.Shared.Models.Group;
 
 namespace APIGateway.Services
 {
@@ -13,24 +14,25 @@ namespace APIGateway.Services
         {
             var formData = new Dictionary<string, string>
             {
-                {"Name", newGroup.Name },
-                {"Members", newGroup.Members }
+                {"Name", newGroup.Name},
+                {"Members", newGroup.Members}
             };
 
             using var content = new MultipartFormDataContent();
 
-            foreach (var field in formData)
+            foreach(var field in formData)
             {
                 content.Add(new StringContent(field.Value), field.Key);
             }
 
-            if (newGroup.Image != null)
+            if(newGroup.Image != null)
             {
                 using var stream = newGroup.Image.OpenReadStream();
 
                 var fileContent = new StreamContent(stream);
 
-                fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(newGroup.Image.ContentType);
+                fileContent.Headers.ContentType =
+                    new System.Net.Http.Headers.MediaTypeHeaderValue(newGroup.Image.ContentType);
 
                 content.Add(fileContent, "file", newGroup.Image.FileName);
             }
@@ -113,26 +115,27 @@ namespace APIGateway.Services
         {
             var formData = new Dictionary<string, string>
             {
-                {"Id", groupInfo.Id.ToString() },
-                {"Name", groupInfo.Name },
-                {"Members", groupInfo.Members },
-                {"IsCurrentImageChanged", groupInfo.IsCurrentImageChanged.ToString() }
+                {"Id", groupInfo.Id.ToString()},
+                {"Name", groupInfo.Name},
+                {"Members", groupInfo.Members},
+                {"IsCurrentImageChanged", groupInfo.IsCurrentImageChanged.ToString()}
             };
 
             using var content = new MultipartFormDataContent();
 
-            foreach (var field in formData)
+            foreach(var field in formData)
             {
                 content.Add(new StringContent(field.Value), field.Key);
             }
 
-            if (groupInfo.Image != null)
+            if(groupInfo.Image != null)
             {
                 using var stream = groupInfo.Image.OpenReadStream();
 
                 var fileContent = new StreamContent(stream);
 
-                fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(groupInfo.Image.ContentType);
+                fileContent.Headers.ContentType =
+                    new System.Net.Http.Headers.MediaTypeHeaderValue(groupInfo.Image.ContentType);
 
                 content.Add(fileContent, "file", groupInfo.Image.FileName);
             }
