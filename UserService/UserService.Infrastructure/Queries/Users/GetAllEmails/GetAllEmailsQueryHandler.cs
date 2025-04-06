@@ -4,13 +4,13 @@ using UserService.Data.Context;
 using UserService.Infrastructure.Commons;
 using UserService.Infrastructure.Models;
 
-namespace UserService.Infrastructure.Queries.Users.GetEmails;
+namespace UserService.Infrastructure.Queries.Users.GetAllEmails;
 
-public class GetEmailsQueryHandler(UserServiceDbContext context) : IRequestHandler<GetEmailsQuery, BaseResponse<List<UserEmail>>>
+public class GetAllEmailsQueryHandler(UserServiceDbContext context) : IRequestHandler<GetAllEmailsQuery, BaseResponse<List<UserEmail>>>
 {
     private readonly UserServiceDbContext _context = context;
 
-    public async Task<BaseResponse<List<UserEmail>>> Handle(GetEmailsQuery request, CancellationToken cancellationToken)
+    public async Task<BaseResponse<List<UserEmail>>> Handle(GetAllEmailsQuery request, CancellationToken cancellationToken)
     {
         try
         {

@@ -6,10 +6,12 @@ using UserService.Infrastructure.Commands.Users.Delete;
 using UserService.Infrastructure.Commands.Users.Update;
 using UserService.Infrastructure.Models;
 using UserService.Infrastructure.Queries.Users.GetAll;
+using UserService.Infrastructure.Queries.Users.GetAllEmails;
 using UserService.Infrastructure.Queries.Users.GetById;
-using UserService.Infrastructure.Queries.Users.GetEmails;
 using UserService.Infrastructure.Queries.Users.GetTheme;
 using UserService.Infrastructure.Queries.Users.GetUserByEmail;
+using UserService.Infrastructure.Queries.Users.GetUserEmails;
+using UserService.Infrastructure.Queries.Users.GetUserPhotos;
 
 namespace UserService.API.Controllers
 {
@@ -81,7 +83,7 @@ namespace UserService.API.Controllers
         [HttpGet("emails")]
         public async Task<ActionResult<List<UserEmail>>> GetEmails()
         {
-            return HandleResponse(await _mediator.Send(new GetEmailsQuery()));
+            return HandleResponse(await _mediator.Send(new GetAllEmailsQuery()));
         }
 
         [HttpPost]
@@ -94,6 +96,24 @@ namespace UserService.API.Controllers
         public async Task<ActionResult<LoginCredentials>> GetLoginCredentials([FromRoute] string email)
         {
             return HandleResponse(await _mediator.Send(new GetLoginCredentialsHandler { Email = email }));
+        }
+
+        [HttpPost("photos")]
+        public async Task<ActionResult<List<string>>> GetUserPhotos([FromBody] List<Guid> userIds)
+        {
+            return HandleResponse(await _mediator.Send(new GetUserPhotosQuery
+            {
+                UserIds = userIds
+            }));
+        }
+
+        [HttpPost("emails")]
+        public async Task<ActionResult<List<UserEmail>>> GetUserEmails([FromBody] List<Guid> userIds)
+        {
+            return HandleResponse(await _mediator.Send(new GetUserEmailsQuery
+            {
+                UserIds = userIds
+            }));
         }
     }
 }

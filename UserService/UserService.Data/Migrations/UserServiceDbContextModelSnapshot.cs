@@ -44,7 +44,7 @@ namespace UserService.Data.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Photos");
+                    b.ToTable("Photos", (string)null);
                 });
 
             modelBuilder.Entity("UserService.Core.Entities.User", b =>
@@ -80,7 +80,7 @@ namespace UserService.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("UserService.Core.Entities.Photo", b =>

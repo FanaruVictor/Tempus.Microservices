@@ -1,6 +1,5 @@
 ﻿using GroupService.Core.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace GroupService.Data.Context.Configuration
@@ -12,20 +11,6 @@ namespace GroupService.Data.Context.Configuration
             builder.Property(x => x.Name).IsRequired();
             builder.Property(x => x.OwnerId).IsRequired();
             builder.Property(x => x.CreatedAt).IsRequired();
-            builder.Property(x => x.UserIds).HasConversion(
-                x => string.Join(',', x),
-                x => x.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(GetGuid)
-                    .Where(g => g.HasValue)
-                    .Select(g => g.Value)
-                    .ToList()
-                )
-                .Metadata.SetValueComparer(new ValueComparer<List<Guid>>(
-                (c1, c2) => c1.SequenceEqual(c2),
-                c => c.Aggregate(0, (hash, guid) => HashCode.Combine(hash, guid.GetHashCode())),
-                c => c.ToList()
-            ));
-
 
             builder
               .HasOne(u => u.GroupPhoto)

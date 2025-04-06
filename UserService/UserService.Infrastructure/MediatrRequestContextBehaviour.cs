@@ -13,7 +13,7 @@ public class MediatrRequestContextBehaviour<TRequest, TResponse>(IHttpContextAcc
         CancellationToken cancellationToken)
     {
 
-        if (_contextAccessor.HttpContext.Request.Path.Value == "/api/users" && _contextAccessor.HttpContext.Request.Method == HttpMethod.Post.ToString()
+        if (_contextAccessor.HttpContext.Request.Path.Value.Equals("/api/users", StringComparison.InvariantCultureIgnoreCase) && _contextAccessor.HttpContext.Request.Method == HttpMethod.Post.ToString()
             || _contextAccessor.HttpContext.Request.Path.Value.StartsWith("/api/users/loginCredentials"))
         {
             return await next();

@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using FluentValidation.AspNetCore;
-using GroupService.Infrastructure.Queries.Group.GetAllGroupsQuery;
+using GroupService.Infrastructure.Queries.Groups.GetAllGroupsQuery;
+using GroupService.Infrastructure.Services.Cloudynary;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +17,7 @@ public static class ConfigureServices
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(MediatrRequestContextBehaviour<,>));
         services.AddFluentValidationAutoValidation();
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        services.AddScoped<ICloudinaryService, CloudinaryService>();
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetAllGroupsQuery).Assembly));
 
         return services;

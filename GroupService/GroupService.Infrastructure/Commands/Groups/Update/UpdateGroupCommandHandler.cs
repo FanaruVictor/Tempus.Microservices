@@ -1,46 +1,39 @@
-﻿using CloudinaryDotNet.Actions;
+﻿using GroupService.Core.Commons;
+using GroupService.Core.Entities;
+using GroupService.Data.Context;
+using GroupService.Infrastructure.Models;
 using MediatR;
-using Microsoft.AspNetCore.Http;
-using GroupService.Core.Commons;
-using GroupService.Core.Entities.Group;
-using GroupService.Core.Entities.User;
-using GroupService.Core.IRepositories;
-using GroupService.Core.Models.Group;
-using GroupService.Infrastructure.Commons;
-using GroupService.Infrastructure.Services.Cloudynary;
-using StatusCodes = GroupService.Core.Commons.StatusCodes;
+using Microsoft.EntityFrameworkCore;
 
 namespace GroupService.Infrastructure.Commands.Groups.Update;
 
 public class UpdateGroupCommandHandler : IRequestHandler<UpdateGroupCommand, BaseResponse<GroupOverview>>
 {
-    private readonly IGroupRepository _groupRepository;
-    private readonly IGroupUserRepository _groupUserRepository;
-    private readonly ICloudinaryService _cloudinaryService;
-    private readonly IGroupPhotoRepository _groupPhotoRepository;
+    //private readonly ICloudinaryService cloudinaryService;
+    private readonly GroupServiceDbContext context;
 
-    public UpdateGroupCommandHandler(IGroupRepository groupRepository, IGroupUserRepository groupUserRepository, ICloudinaryService cloudinaryService, IGroupPhotoRepository groupPhotoRepository)
+    public UpdateGroupCommandHandler(GroupServiceDbContext context)
     {
-        _groupRepository = groupRepository;
-        _groupUserRepository = groupUserRepository;
-        _cloudinaryService = cloudinaryService;
-        _groupPhotoRepository = groupPhotoRepository;
+        //this.cloudinaryService = cloudinaryService;
+        this.context = context;
     }
-    
+
     public async Task<BaseResponse<GroupOverview>> Handle(UpdateGroupCommand request, CancellationToken cancellationToken)
     {
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
-            
-            var group = await _groupRepository.GetById(request.Id);
 
-            if(group == null)
+            var group = await this.context.Groups
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == request.Id);
+
+            if (group == null)
             {
                 return BaseResponse<GroupOverview>.NotFound("Group not found");
             }
-        
-            if(group.OwnerId != request.UserId)
+
+            if (group.OwnerId != request.UserId)
             {
                 return BaseResponse<GroupOverview>.Forbbiden();
             }
@@ -52,18 +45,22 @@ public class UpdateGroupCommandHandler : IRequestHandler<UpdateGroupCommand, Bas
                 Name = request.Name,
                 CreatedAt = group.CreatedAt
             };
-        
-            _groupRepository.Update(entity);
 
-            var groupMembers = await _groupRepository.GetGroupMembers(group.Id);
-            groupMembers = groupMembers.Where(x => x.Id != request.UserId).ToList();
+            this.context.Groups.Update(entity);
+
+            var groupMembers = await this.context.UserGroups
+                .AsNoTracking()
+                .Where(x => x.GroupId == entity.Id)
+                .ToListAsync();
+
+            groupMembers = groupMembers.Where(x => x.UserId != request.UserId).ToList();
 
             await UpdateMembers(request, groupMembers, group);
 
-            if(request.IsCurrentImageChanged)
+            /*if (request.IsCurrentImageChanged)
             {
-                var updatePhotoResult =  await UpdatePhoto(request.Image, group);
-                
+                var updatePhotoResult = await UpdatePhoto(request.Image, group);
+
                 if (updatePhotoResult.StatusCode != StatusCodes.Ok)
                 {
                     return new BaseResponse<GroupOverview>
@@ -75,22 +72,23 @@ public class UpdateGroupCommandHandler : IRequestHandler<UpdateGroupCommand, Bas
 
                 group.GroupPhoto = updatePhotoResult.Resource ?? null;
             }
-            
-            await _groupRepository.SaveChanges();
+            */
 
-            var groupOverview =  new GroupOverview
+            await this.context.SaveChangesAsync(cancellationToken);
+
+            var groupOverview = new GroupOverview
             {
-                Id = group.Id,
-                Name = group.Name,
-                Image = group.GroupPhoto?.Url,
-                UserCount = _groupRepository.GetUserCount(group.Id),
-                CreatedAt = group.CreatedAt,
-                OwnerId = group.OwnerId
+                Id = entity.Id,
+                Name = entity.Name,
+                Image = entity.GroupPhoto?.Url,
+                UserCount = this.context.UserGroups.Count(x => x.GroupId == entity.Id),
+                CreatedAt = entity.CreatedAt,
+                OwnerId = entity.OwnerId
             };
-        
+
             return BaseResponse<GroupOverview>.Ok(groupOverview);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             return BaseResponse<GroupOverview>.BadRequest(new List<string>
             {
@@ -100,75 +98,87 @@ public class UpdateGroupCommandHandler : IRequestHandler<UpdateGroupCommand, Bas
 
     }
 
-    private async Task UpdateMembers(UpdateGroupCommand request, List<User> groupMembers, Group group)
+    private async Task UpdateMembers(UpdateGroupCommand request, List<UserGroup> groupMembers, Group group)
     {
-        var groupMembersIds = groupMembers.Select(x => x.Id.ToString()).ToList();
-        request.Members = request.Members.Substring(1, request.Members.Length - 2);
-        var members = request.Members.Split(",").ToList();
+        var groupMembersIds = groupMembers.Select(x => x.UserId.ToString()).ToList();
+
+        List<string> members = new List<string>();
+
+        if (request.Members != null)
+        {
+            members = request.Members.Split(",").ToList();
+        }
 
         var newMembers = members.Where(x => !groupMembersIds.Contains(x));
         var removedMembers = groupMembersIds.Where(x => !members.Contains(x));
 
-        var newGroupMembers = newMembers.Select(x => new GroupUser
-        {
-            UserId = Guid.Parse(x),
-            GroupId = group.Id
-        }).ToList();
-        
-        await _groupUserRepository.AddRange(newGroupMembers);
-
-        var removeGroupMembers = removedMembers.Select(x => new GroupUser
+        var newGroupMembers = newMembers.Select(x => new UserGroup
         {
             UserId = Guid.Parse(x),
             GroupId = group.Id
         }).ToList();
 
-        await _groupUserRepository.RemoveRange(removeGroupMembers);
+        await this.context.UserGroups.AddRangeAsync(newGroupMembers);
+
+        var removeGroupMembers = removedMembers.Select(x => new UserGroup
+        {
+            UserId = Guid.Parse(x),
+            GroupId = group.Id
+        }).ToList();
+
+        this.context.UserGroups.RemoveRange(removeGroupMembers);
     }
 
-    private async Task<BaseResponse<GroupPhoto>> UpdatePhoto(IFormFile? photo, Group group)
+    /*private async Task<BaseResponse<Photo>> UpdatePhoto(IFormFile? photo, Group group)
     {
-        if(photo == null)
+        if (photo == null)
         {
-            if(group.GroupPhoto != null)
+            if (group.GroupPhoto != null)
             {
-                await _cloudinaryService.DestroyUsingGroupId(group.Id);
-                await _groupPhotoRepository.Delete(group.GroupPhoto.Id);
+                await this.cloudinaryService.DestroyUsingGroupId(group.Id);
+
+                var dbPhoto = await this.context.Photos
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.Id == group.GroupPhoto.Id);
+
+                this.context.Photos.Remove(dbPhoto);
             }
-            
-            return BaseResponse<GroupPhoto>.Ok();
+
+            return BaseResponse<Photo>.Ok();
         }
 
         ImageUploadResult uploadResult;
-        GroupPhoto groupPhoto;
+        Photo groupPhoto;
 
-        if(group.GroupPhoto != null)
+        if (group.GroupPhoto != null)
         {
-            await _cloudinaryService.DestroyUsingGroupId(group.Id);
-            uploadResult = await _cloudinaryService.Upload(photo);
-            groupPhoto = new GroupPhoto
+            await this.cloudinaryService.DestroyUsingGroupId(group.Id);
+
+            uploadResult = await this.cloudinaryService.Upload(photo);
+            groupPhoto = new Photo
             {
                 Id = group.GroupPhoto.Id,
                 PublicId = uploadResult.PublicId,
                 Url = uploadResult.Url.ToString(),
                 GroupId = group.Id
             };
-            _groupPhotoRepository.Update(groupPhoto);
+
+            this.context.Photos.Update(groupPhoto);
         }
         else
         {
-            uploadResult = await _cloudinaryService.Upload(photo);
-            groupPhoto = new GroupPhoto
+            uploadResult = await this.cloudinaryService.Upload(photo);
+            groupPhoto = new Photo
             {
                 Id = Guid.NewGuid(),
                 PublicId = uploadResult.PublicId,
                 Url = uploadResult.Url.ToString(),
                 GroupId = group.Id
             };
-            await _groupPhotoRepository.Add(groupPhoto);
+            await this.context.Photos.AddAsync(groupPhoto);
         }
 
 
-        return BaseResponse<GroupPhoto>.Ok(groupPhoto);
-    }
+        return BaseResponse<Photo>.Ok(groupPhoto);
+    }*/
 }

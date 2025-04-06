@@ -7,6 +7,5 @@ public class Group
     public string Name { get; set; }
     public Guid OwnerId { get; set; }
     public DateTime CreatedAt { get; set; }
-    public List<Guid> UserIds { get; set; }
     public Photo GroupPhoto { get; set; }
 }

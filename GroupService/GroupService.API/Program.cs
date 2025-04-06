@@ -1,8 +1,14 @@
 using GroupService.Data;
+using System.Reflection;
+using UserService.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly());
+builder.Configuration.AddEnvironmentVariables();
+
 builder.Services.AddDb(builder.Configuration);
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

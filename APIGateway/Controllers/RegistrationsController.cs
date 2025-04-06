@@ -7,6 +7,7 @@ namespace APIGateway.Controllers
     public class RegistrationsController(IRegistrationService registrationService, IHttpContextAccessor contextAccessor) : BaseController(contextAccessor)
     {
         private readonly IRegistrationService registrationService = registrationService;
+
         [HttpGet]
         public async Task<ActionResult<List<RegistrationDetails>>> GetAll([FromQuery] Guid groupId)
         {

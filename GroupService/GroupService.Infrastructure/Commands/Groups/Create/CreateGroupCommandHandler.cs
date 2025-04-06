@@ -1,26 +1,19 @@
-﻿using MediatR;
-using GroupService.Core.Commons;
+﻿using GroupService.Core.Commons;
 using GroupService.Core.Entities;
-using GroupService.Core.Entities.Group;
-using GroupService.Core.IRepositories;
-using GroupService.Infrastructure.Services.Cloudynary;
+using GroupService.Data.Context;
+using MediatR;
 
 namespace GroupService.Infrastructure.Commands.Groups.Create;
 
 public class CreateGroupCommandHandler : IRequestHandler<CreateGroupCommand, BaseResponse<bool>>
 {
-    private readonly IGroupRepository _groupRepository;
-    private readonly ICloudinaryService _cloudinaryService;
-    private readonly IGroupUserRepository _groupUserRepository;
-    private readonly IGroupPhotoRepository _groupPhotoRepository;
+    //private readonly ICloudinaryService _cloudinaryService;
+    private readonly GroupServiceDbContext context;
 
-    public CreateGroupCommandHandler(IGroupRepository groupRepository, ICloudinaryService cloudinaryService,
-         IGroupUserRepository groupUserRepository, IGroupPhotoRepository groupPhotoRepository)
+    public CreateGroupCommandHandler(GroupServiceDbContext context)
     {
-        _groupRepository = groupRepository;
-        _cloudinaryService = cloudinaryService;
-        _groupUserRepository = groupUserRepository;
-        _groupPhotoRepository = groupPhotoRepository;
+        //_cloudinaryService = cloudinaryService;
+        this.context = context;
     }
 
     public async Task<BaseResponse<bool>> Handle(CreateGroupCommand request, CancellationToken cancellationToken)
@@ -29,25 +22,30 @@ public class CreateGroupCommandHandler : IRequestHandler<CreateGroupCommand, Bas
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            if (request.UserId == null)
+            {
+                return BaseResponse<bool>.BadRequest(new List<string>());
+            }
+
             var group = new Group
             {
                 Id = Guid.NewGuid(),
                 Name = request.Name,
-                OwnerId = request.UserId,
-                CreatedAt = DateTime.UtcNow 
+                OwnerId = request.UserId.Value,
+                CreatedAt = DateTime.UtcNow
             };
 
-            await _groupRepository.Add(group);
+            await this.context.Groups.AddAsync(group);
 
-            await AddImage(request, group.Id);
+            //await AddImage(request, group.Id);
 
             await AddGroupUser(request, group.Id);
 
-            await _groupRepository.SaveChanges();
+            await this.context.SaveChangesAsync(cancellationToken);
 
             return BaseResponse<bool>.Ok(true);
         }
-        catch(Exception exception)
+        catch (Exception exception)
         {
             return BaseResponse<bool>.BadRequest(new List<string>
             {
@@ -58,12 +56,12 @@ public class CreateGroupCommandHandler : IRequestHandler<CreateGroupCommand, Bas
 
     private async Task AddGroupUser(CreateGroupCommand request, Guid groupId)
     {
-        var groupUsers = new List<GroupUser>
+        var groupUsers = new List<UserGroup>
         {
-            new GroupUser
+            new UserGroup
             {
                 GroupId = groupId,
-                UserId = request.UserId
+                UserId = request.UserId.Value
             }
         };
 
@@ -71,36 +69,36 @@ public class CreateGroupCommandHandler : IRequestHandler<CreateGroupCommand, Bas
             .Replace("\"", "")
             .Split(',')
             .Select(x => x.Replace("\"", ""));
-        
-        foreach(var member in members)
+
+        foreach (var member in members)
         {
-            groupUsers.Add(new GroupUser
+            groupUsers.Add(new UserGroup
             {
                 GroupId = groupId,
                 UserId = new Guid(member)
             });
         }
 
-        await _groupUserRepository.AddRange(groupUsers);
+        await this.context.UserGroups.AddRangeAsync(groupUsers);
     }
 
     private async Task AddImage(CreateGroupCommand request, Guid groupId)
     {
-        if(request.Image == null)
+        if (request.Image == null)
         {
             return;
         }
 
-        var uploadResult = await _cloudinaryService.Upload(request.Image);
+        /*var uploadResult = await _cloudinaryService.Upload(request.Image);
 
-        var groupPhoto = new GroupPhoto
-        {
-            Id = Guid.NewGuid(),
-            GroupId = groupId,
-            PublicId = uploadResult.PublicId,
-            Url = uploadResult.Url.ToString(),
-        };
+         var groupPhoto = new Photo
+         {
+             Id = Guid.NewGuid(),
+             GroupId = groupId,
+             PublicId = uploadResult.PublicId,
+             Url = uploadResult.Url.ToString(),
+         };
 
-        await _groupPhotoRepository.Add(groupPhoto);
+         await this.context.Photos.AddAsync(groupPhoto);*/
     }
 }

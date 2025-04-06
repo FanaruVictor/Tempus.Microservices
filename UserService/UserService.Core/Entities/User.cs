@@ -9,6 +9,5 @@
         public bool IsDarkTheme { get; set; }
         public string Password { get; set; }
         public Photo Photo { get; set; }
-        public List<Guid> GroupIds { get; set; }
     }
 }

@@ -5,5 +5,5 @@ namespace GroupService.Infrastructure.Commons;
 
 public class BaseRequest<TResponse> : IRequest<TResponse>
 {
-    [JsonIgnore] public Guid UserId { get; set; }
+    [JsonIgnore] public Guid? UserId { get; set; }
 }

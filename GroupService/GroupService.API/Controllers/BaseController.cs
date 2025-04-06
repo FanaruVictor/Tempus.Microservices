@@ -1,6 +1,5 @@
 ﻿using GroupService.Core.Commons;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using CustomStatusCodes = GroupService.Core.Commons.StatusCodes;
 
@@ -9,7 +8,7 @@ namespace GroupService.API.Controllers;
 /// <summary>
 ///     Base controller, every controller will inherited this one
 /// </summary>
-[Authorize, ApiController, Route("api/v{version:apiVersion}/[controller]")]
+[ApiController, Route("api/[controller]")]
 public class BaseController : ControllerBase
 {
     /// <summary>

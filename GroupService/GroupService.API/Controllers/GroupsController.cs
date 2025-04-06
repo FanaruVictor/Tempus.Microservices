@@ -2,10 +2,8 @@
 using GroupService.Infrastructure.Commands.Groups.Delete;
 using GroupService.Infrastructure.Commands.Groups.Update;
 using GroupService.Infrastructure.Models;
-using GroupService.Infrastructure.Queries.Category.GetAll;
-using GroupService.Infrastructure.Queries.Group.GetAllGroupsQuery;
-using GroupService.Infrastructure.Queries.Group.GetGroupByIdQuery;
-using GroupService.Infrastructure.Queries.Registration.GetAll;
+using GroupService.Infrastructure.Queries.Groups.GetAllGroupsQuery;
+using GroupService.Infrastructure.Queries.Groups.GetGroupByIdQuery;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +11,6 @@ namespace GroupService.API.Controllers;
 
 public class GroupsController : BaseController
 {
-    // GET
     public GroupsController(IMediator mediator) : base(mediator)
     {
     }
@@ -34,18 +31,6 @@ public class GroupsController : BaseController
     public async Task<ActionResult<Guid>> Delete([FromRoute] Guid id)
     {
         return HandleResponse(await _mediator.Send(new DeleteGroupCommand() { Id = id }));
-    }
-
-    [HttpGet("{groupId:Guid}/registrations")]
-    public async Task<ActionResult<List<RegistrationOverview>>> GetAllRegistrations([FromRoute] Guid groupId)
-    {
-        return HandleResponse(await _mediator.Send(new GetAllRegistrationsQuery { GroupId = groupId }));
-    }
-
-    [HttpGet("{groupId:Guid}/categories")]
-    public async Task<ActionResult<List<BaseCategory>>> GetAllCategories([FromRoute] Guid groupId)
-    {
-        return HandleResponse(await _mediator.Send(new GetAllCategoriesQuery { GroupId = groupId }));
     }
 
     [HttpGet("{id:Guid}")]
