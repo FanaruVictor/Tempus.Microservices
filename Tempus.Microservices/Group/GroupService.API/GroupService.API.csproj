@@ -10,25 +10,26 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentValidation" Version="11.11.0"/>
-        <PackageReference Include="MediatR" Version="12.4.1"/>
+        <PackageReference Include="FluentValidation" Version="11.11.0" />
+        <PackageReference Include="MediatR" Version="12.4.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.3"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.3" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.3">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5"/>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
+        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\GroupService.Core\GroupService.Core.csproj"/>
-        <ProjectReference Include="..\GroupService.Data\GroupService.Data.csproj"/>
-        <ProjectReference Include="..\GroupService.Infrastructure\GroupService.Infrastructure.csproj"/>
+        <ProjectReference Include="..\..\Tempus.Microservices.ServiceDefaults\Tempus.Microservices.ServiceDefaults.csproj" />
+        <ProjectReference Include="..\GroupService.Core\GroupService.Core.csproj" />
+        <ProjectReference Include="..\GroupService.Data\GroupService.Data.csproj" />
+        <ProjectReference Include="..\GroupService.Infrastructure\GroupService.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

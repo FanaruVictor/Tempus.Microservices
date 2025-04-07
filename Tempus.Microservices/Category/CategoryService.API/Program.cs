@@ -1,8 +1,10 @@
-using System.Reflection;
 using CategoryService.Data;
 using CategoryService.Infrastructure;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddServiceDefaults();
 
 builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly());
 builder.Configuration.AddEnvironmentVariables();
@@ -14,7 +16,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var allowedOrigin = builder.Configuration["APIGatewayURL"] ?? "*";
+var allowedOrigin = builder.Configuration["AllowedOrigin"].Split(',') ?? ["*"];
 
 builder.Services.AddCors(options =>
 {
@@ -30,7 +32,9 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-if(app.Environment.IsDevelopment())
+app.MapDefaultEndpoints();
+
+if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();

@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Tempus.Microservices\Shared\Tempus.Shared\Tempus.Shared.csproj" />
+    <ProjectReference Include="..\Tempus.Microservices\Tempus.Microservices.ServiceDefaults\Tempus.Microservices.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>

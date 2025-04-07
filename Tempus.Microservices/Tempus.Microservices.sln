@@ -49,6 +49,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tempus.Shared", "Shared\Tem
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APIGateway", "..\APIGateway\APIGateway.csproj", "{31BCF28D-C244-4614-8044-617115BAC35D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tempus.Microservices.AppHost", "Tempus.Microservices.AppHost\Tempus.Microservices.AppHost.csproj", "{83296EFF-C485-4334-B717-07E6EC82423C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tempus.Microservices.ServiceDefaults", "Tempus.Microservices.ServiceDefaults\Tempus.Microservices.ServiceDefaults.csproj", "{BA5ECD96-2565-5D29-4BD8-2BDE01D63FB5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -127,6 +131,14 @@ Global
 		{31BCF28D-C244-4614-8044-617115BAC35D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{31BCF28D-C244-4614-8044-617115BAC35D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{31BCF28D-C244-4614-8044-617115BAC35D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83296EFF-C485-4334-B717-07E6EC82423C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83296EFF-C485-4334-B717-07E6EC82423C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83296EFF-C485-4334-B717-07E6EC82423C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83296EFF-C485-4334-B717-07E6EC82423C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA5ECD96-2565-5D29-4BD8-2BDE01D63FB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA5ECD96-2565-5D29-4BD8-2BDE01D63FB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA5ECD96-2565-5D29-4BD8-2BDE01D63FB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA5ECD96-2565-5D29-4BD8-2BDE01D63FB5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

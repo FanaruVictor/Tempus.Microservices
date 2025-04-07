@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.0.0" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsAspireHost>true</IsAspireHost>
+    <UserSecretsId>48d23536-c828-48f2-a5e6-f693b469845a</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.0.0" />
+    <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\APIGateway\APIGateway.csproj" />
+    <ProjectReference Include="..\Category\CategoryService.API\CategoryService.API.csproj" />
+    <ProjectReference Include="..\Group\GroupService.API\GroupService.API.csproj" />
+    <ProjectReference Include="..\Registration\RegistrationService.API\RegistrationService.API.csproj" />
+    <ProjectReference Include="..\User\UserService.API\UserService.API.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,32 @@
+[
+  {
+    "Name": "Run All",
+    "Projects": [
+      {
+        "Path": "User\\UserService.API\\UserService.API.csproj",
+        "Action": "Start",
+        "DebugTarget": "https"
+      },
+      {
+        "Path": "Registration\\RegistrationService.API\\RegistrationService.API.csproj",
+        "Action": "Start",
+        "DebugTarget": "https"
+      },
+      {
+        "Path": "Group\\GroupService.API\\GroupService.API.csproj",
+        "Action": "Start",
+        "DebugTarget": "https"
+      },
+      {
+        "Path": "Category\\CategoryService.API\\CategoryService.API.csproj",
+        "Action": "StartWithoutDebugging",
+        "DebugTarget": "https"
+      },
+      {
+        "Path": "..\\APIGateway\\APIGateway.csproj",
+        "Action": "Start",
+        "DebugTarget": "https"
+      }
+    ]
+  }
+]
