@@ -1,3 +1,4 @@
+using RegistrationService.API.Jobs;
 using RegistrationService.Data;
 using RegistrationService.Infrastructure;
 using System.Reflection;
@@ -28,6 +29,13 @@ builder.Services.AddCors(options =>
             policyBuilder.AllowAnyMethod();
         });
 });
+
+
+builder.AddRabbitMQClient("messaging");
+
+builder.Services.AddHostedService<DeleteUserJob>();
+builder.Services.AddHostedService<DeleteCategoryJob>();
+builder.Services.AddHostedService<DeleteGroupJob>();
 
 var app = builder.Build();
 

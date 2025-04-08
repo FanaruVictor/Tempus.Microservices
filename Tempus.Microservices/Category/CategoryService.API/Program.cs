@@ -1,3 +1,4 @@
+using CategoryService.API.Jobs;
 using CategoryService.Data;
 using CategoryService.Infrastructure;
 using System.Reflection;
@@ -29,6 +30,10 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.AddRabbitMQClient("messaging");
+
+builder.Services.AddHostedService<DeleteUserJob>();
+builder.Services.AddHostedService<DeleteGroupJob>();
 
 var app = builder.Build();
 

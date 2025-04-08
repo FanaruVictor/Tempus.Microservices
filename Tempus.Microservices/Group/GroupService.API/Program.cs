@@ -1,3 +1,4 @@
+using GroupService.API.Jobs;
 using GroupService.Data;
 using System.Reflection;
 using UserService.Infrastructure;
@@ -28,6 +29,10 @@ builder.Services.AddCors(options =>
             policyBuilder.AllowAnyMethod();
         });
 });
+
+builder.AddRabbitMQClient("messaging");
+
+builder.Services.AddHostedService<DeleteUserJob>();
 
 var app = builder.Build();
 
