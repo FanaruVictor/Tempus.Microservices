@@ -33,9 +33,7 @@ builder.Services.AddCors(options =>
 
 builder.AddRabbitMQClient("messaging");
 
-builder.Services.AddHostedService<DeleteUserJob>();
 builder.Services.AddHostedService<DeleteCategoryJob>();
-builder.Services.AddHostedService<DeleteGroupJob>();
 
 var app = builder.Build();
 

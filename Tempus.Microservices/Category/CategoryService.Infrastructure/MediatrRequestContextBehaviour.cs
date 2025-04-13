@@ -17,7 +17,12 @@ public class MediatrRequestContextBehaviour<TRequest, TResponse> : IPipelineBeha
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
-        if((_contextAccessor.HttpContext?.Request.Headers.TryGetValue("UserId", out var userIdHeader) ?? false)
+        if (_contextAccessor == null || _contextAccessor.HttpContext == null)
+        {
+            return await next();
+        }
+
+        if ((_contextAccessor.HttpContext?.Request.Headers.TryGetValue("UserId", out var userIdHeader) ?? false)
            && Guid.TryParse(userIdHeader.ToString(), out var userId))
         {
             request.UserId = userId;

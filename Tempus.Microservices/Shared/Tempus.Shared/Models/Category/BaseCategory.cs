@@ -6,5 +6,6 @@
         public string Name { get; set; }
         public DateTime LastUpdatedAt { get; set; }
         public string? Color { get; set; }
+        public Guid OwnerId { get; set; }
     }
 }

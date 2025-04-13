@@ -52,7 +52,7 @@ public class AuthService : IAuthService
         return result;
     }
 
-    public async Task<AuthorizationResult> Login(LoginCredentials credentials)
+    public async Task<AuthorizationResult?> Login(LoginCredentials credentials)
     {
         using var httpClient = new System.Net.Http.HttpClient();
 
@@ -64,7 +64,7 @@ public class AuthService : IAuthService
 
         var response = JsonConvert.DeserializeObject<HttpResponse<LoginResult>>(responseBody);
 
-        if (!BCryptNet.BCrypt.Verify(credentials.Password, response.Resource.Password))
+        if (response?.Resource == null || !BCryptNet.BCrypt.Verify(credentials.Password, response.Resource.Password))
         {
             return null;
         }

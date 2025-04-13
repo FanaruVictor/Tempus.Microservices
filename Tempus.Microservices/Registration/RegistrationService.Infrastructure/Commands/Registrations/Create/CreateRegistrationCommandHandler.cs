@@ -1,10 +1,10 @@
-﻿using System.Text.RegularExpressions;
-using MediatR;
+﻿using MediatR;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using RegistrationService.Core.Entities;
 using RegistrationService.Data.Context;
 using RegistrationService.Infrastructure.IServices;
+using System.Text.RegularExpressions;
 using Tempus.Shared.Commons;
 using Tempus.Shared.Models.Category;
 using Tempus.Shared.Models.Registration;
@@ -38,7 +38,7 @@ public class
 
             var category = await GetCategoryAsync(request.CategoryId, request.UserId, request.GroupId);
 
-            if(category == null)
+            if (category == null || (request.GroupId.HasValue && !request.GroupId.Value.Equals(Guid.Empty) && category.OwnerId != request.GroupId.Value))
             {
                 return BaseResponse<RegistrationDetails>.BadRequest(new List<string>
                     {$"Category with Id: {request.CategoryId} not found"});
@@ -61,9 +61,9 @@ public class
 
             var cloudinaryImages = await _cloudinaryService.UploadRegistrationImages(images);
 
-            if(cloudinaryImages.Length > 0)
+            if (cloudinaryImages.Length > 0)
             {
-                for(var i = 0; i < images.Count; i++)
+                for (var i = 0; i < images.Count; i++)
                 {
                     var image = images[i].Value;
                     var style = ExtractStyle(images[i].Value);
@@ -85,9 +85,9 @@ public class
 
             return result;
         }
-        catch(Exception exception)
+        catch (Exception exception)
         {
-            var result = BaseResponse<RegistrationDetails>.BadRequest(new List<string> {exception.Message});
+            var result = BaseResponse<RegistrationDetails>.BadRequest(new List<string> { exception.Message });
             return result;
         }
     }
@@ -100,7 +100,7 @@ public class
 
     private string CreateImage(string image, string style)
     {
-        return$"<img src=\"{image}\" {style}/>";
+        return $"<img src=\"{image}\" {style}/>";
     }
 
     private string ExtractStyle(string image)
@@ -112,16 +112,16 @@ public class
 
         var match = regex.Match(image);
 
-        if(match.Success)
+        if (match.Success)
         {
             // Extract the style and width attributes
             var style = match.Groups["style"].Value;
             var width = match.Groups["width"].Value;
 
-            return$"style=\"{style}\" width=\"{width}\"";
+            return $"style=\"{style}\" width=\"{width}\"";
         }
 
-        return"";
+        return "";
     }
 
     private async Task<BaseCategory> GetCategoryAsync(Guid id, Guid userId, Guid? groupId)

@@ -7,14 +7,10 @@ using Tempus.Shared.Models.User;
 
 namespace APIGateway.Services
 {
-    public class UserService : IUserService
+    public class UserService(IConfiguration configuration) : IUserService
     {
-        private readonly string userServiceBaseUrl;
+        private readonly string userServiceBaseUrl = configuration["userServiceBaseURL"] ?? "";
 
-        public UserService(IConfiguration configuration)
-        {
-            this.userServiceBaseUrl = configuration["userServiceBaseURL"];
-        }
         public async Task<UserDetails> ChangeTheme(bool isDarkTheme, Guid id)
         {
             var json = JsonConvert.SerializeObject(new { IsDarkTheme = isDarkTheme });
