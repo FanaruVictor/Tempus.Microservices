@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http.Features;
 using System.Reflection;
 using UserService.Data;
+using UserService.Data.Context;
 using UserService.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDb(builder.Configuration);
+builder.EnrichSqlServerDbContext<UserServiceDbContext>(configureSettings: settings =>
+{
+    settings.DisableRetry = false;
+    settings.CommandTimeout = 30;
+
+});
+
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
 

@@ -1,5 +1,6 @@
 using CategoryService.API.Jobs;
 using CategoryService.Data;
+using CategoryService.Data.Context;
 using CategoryService.Infrastructure;
 using System.Reflection;
 
@@ -11,6 +12,14 @@ builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly());
 builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddDb(builder.Configuration);
+
+builder.EnrichSqlServerDbContext<CategoryServiceDbContext>(configureSettings: settings =>
+{
+    settings.DisableRetry = false;
+    settings.CommandTimeout = 30;
+
+});
+
 builder.Services.AddInfrastructureServices();
 
 builder.Services.AddControllers();

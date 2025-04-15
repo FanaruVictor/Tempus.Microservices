@@ -1,5 +1,6 @@
 using GroupService.API.Jobs;
 using GroupService.Data;
+using GroupService.Data.Context;
 using System.Reflection;
 using UserService.Infrastructure;
 
@@ -11,6 +12,12 @@ builder.Configuration.AddUserSecrets(Assembly.GetExecutingAssembly());
 builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddDb(builder.Configuration);
+builder.EnrichSqlServerDbContext<GroupServiceDbContext>(configureSettings: settings =>
+{
+    settings.DisableRetry = false;
+    settings.CommandTimeout = 30;
+
+});
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
 builder.Services.AddControllers();

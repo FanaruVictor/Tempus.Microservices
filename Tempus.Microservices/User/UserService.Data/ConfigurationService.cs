@@ -6,11 +6,11 @@ using UserService.Data.Context;
 
 namespace UserService.Data
 {
-    public static class Configuration
+    public static class ConfigurationService
     {
         public static void AddDb(this IServiceCollection services, IConfiguration configuration)
         {
-            var connectionString = configuration["user-service-connection-string"];
+            var connectionString = configuration.GetConnectionString("UserService");
 
             var migrationsAssembly = typeof(UserServiceDbContext).GetTypeInfo().Assembly.GetName().Name;
             services.AddDbContext<UserServiceDbContext>(options => options.UseSqlServer(connectionString, sql =>

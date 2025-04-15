@@ -4,7 +4,6 @@ using Tempus.Shared.Commons;
 using Tempus.Shared.Models.User;
 using UserService.Core.Entities;
 using UserService.Data.Context;
-using UserService.Infrastructure.Models;
 
 namespace UserService.Infrastructure.Commands.Users.Create
 {

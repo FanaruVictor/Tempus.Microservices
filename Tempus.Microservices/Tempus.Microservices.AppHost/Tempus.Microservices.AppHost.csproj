@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <Sdk Name="Aspire.AppHost.Sdk" Version="9.0.0" />
 
@@ -12,16 +12,21 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.0.0" />
-    <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="9.0.0" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.2.0" />
+    <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="9.2.0" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" Version="9.2.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\APIGateway\APIGateway.csproj" />
     <ProjectReference Include="..\Category\CategoryService.API\CategoryService.API.csproj" />
+    <ProjectReference Include="..\Category\CategoryService.MigrationService\CategoryService.MigrationService.csproj" />
     <ProjectReference Include="..\Group\GroupService.API\GroupService.API.csproj" />
+    <ProjectReference Include="..\Group\GroupService.MigrationService\GroupService.MigrationService.csproj" />
     <ProjectReference Include="..\Registration\RegistrationService.API\RegistrationService.API.csproj" />
+    <ProjectReference Include="..\Registration\RegistrationService.MigrationService\RegistrationService.MigrationService.csproj" />
     <ProjectReference Include="..\User\UserService.API\UserService.API.csproj" />
+    <ProjectReference Include="..\User\UserService.Migrationservice\UserService.MigrationService.csproj" />
   </ItemGroup>
 
 </Project>
