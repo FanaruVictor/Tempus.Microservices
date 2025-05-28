@@ -7,9 +7,9 @@ using Tempus.Shared.Models.Category;
 
 namespace APIGateway.Services
 {
-    public class CategoryService(IConfiguration configuration) : ICategoryService
+    public class CategoryService(IHttpClientFactory httpClientFactory) : ICategoryService
     {
-        private readonly string categoryServiceBaseUrl = configuration["categoryServiceBaseURL"];
+        private readonly HttpClient httpClient = httpClientFactory.CreateClient("categoryservice-api");
 
         public async Task<BaseCategory> Create(Guid userId, NewCategory newCategory, Guid groupId)
         {
@@ -22,17 +22,12 @@ namespace APIGateway.Services
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var url = groupId != Guid.Empty
-                ? $"{this.categoryServiceBaseUrl}?groupId={groupId}"
-                : $"{this.categoryServiceBaseUrl}";
+                ? $"/api/categories?groupId={groupId}"
+                : "/api/categories";
 
-            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            httpClient.DefaultRequestHeaders.Add("UserId", userId.ToString());
 
-            request.Headers.Add("UserId", userId.ToString());
-            request.Content = content;
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.PostAsync(url, content);
 
             responseObject.EnsureSuccessStatusCode();
 
@@ -46,16 +41,12 @@ namespace APIGateway.Services
         public async Task<Guid> Delete(Guid userId, Guid id, Guid groupId)
         {
             var url = groupId != Guid.Empty
-                ? $"{this.categoryServiceBaseUrl}/{id}?groupId={groupId}"
-                : $"{this.categoryServiceBaseUrl}/{id}";
+                ? $"/api/categories/{id}?groupId={groupId}"
+                : $"/api/categories/{id}";
 
-            var request = new HttpRequestMessage(HttpMethod.Delete, url);
+            httpClient.DefaultRequestHeaders.Add("UserId", userId.ToString());
 
-            request.Headers.Add("UserId", userId.ToString());
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.DeleteAsync(url);
 
             responseObject.EnsureSuccessStatusCode();
 
@@ -69,16 +60,12 @@ namespace APIGateway.Services
         public async Task<List<BaseCategory>> GetAll(Guid userId, Guid groupId)
         {
             var url = groupId != Guid.Empty
-                ? $"{this.categoryServiceBaseUrl}?groupId={groupId}"
-                : this.categoryServiceBaseUrl;
+                ? $"/api/categories/?groupId={groupId}"
+                : "/api/categories";
 
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            httpClient.DefaultRequestHeaders.Add("UserId", userId.ToString());
 
-            request.Headers.Add("UserId", userId.ToString());
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.GetAsync(url);
 
             responseObject.EnsureSuccessStatusCode();
 
@@ -92,16 +79,12 @@ namespace APIGateway.Services
         public async Task<BaseCategory> GetById(Guid userId, Guid id, Guid groupId)
         {
             var url = groupId != Guid.Empty
-                ? $"{this.categoryServiceBaseUrl}/{id}?groupId={groupId}"
-                : this.categoryServiceBaseUrl;
+                ? $"/api/categories/{id}?groupId={groupId}"
+                : $"/api/categories/{id}";
 
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            httpClient.DefaultRequestHeaders.Add("UserId", userId.ToString());
 
-            request.Headers.Add("UserId", userId.ToString());
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.GetAsync(url);
 
             responseObject.EnsureSuccessStatusCode();
 
@@ -124,17 +107,12 @@ namespace APIGateway.Services
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var url = groupId != Guid.Empty
-                ? $"{this.categoryServiceBaseUrl}?groupId={groupId}"
-                : this.categoryServiceBaseUrl;
+                ? $"/api/categories?groupId={groupId}"
+                : "/api/categories";
 
-            var request = new HttpRequestMessage(HttpMethod.Put, url);
+            httpClient.DefaultRequestHeaders.Add("UserId", userId.ToString());
 
-            request.Headers.Add("UserId", userId.ToString());
-            request.Content = content;
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.PutAsync(url, content);
 
             responseObject.EnsureSuccessStatusCode();
 

@@ -43,19 +43,6 @@ builder.Services.Configure<FormOptions>(options =>
     options.MultipartBodyLengthLimit = 50 * 1024 * 1024; // Allow 50MB uploads
 });
 
-
-//builder.Services.AddMassTransit(busConfigurator =>
-//{
-//    busConfigurator.UsingRabbitMq((context, cfg) =>
-//        {
-//            cfg.Host(builder.Configuration["RabbitMQ:Host"], builder.Configuration["RabbitMQ:Port"], "/", h =>
-//            {
-//                h.Username(builder.Configuration["RabbitMQ:Username"]);
-//                h.Password(builder.Configuration["RabbitMQ:Password"]);
-//            });
-//        });
-//});
-
 builder.AddRabbitMQClient("messaging");
 
 var app = builder.Build();

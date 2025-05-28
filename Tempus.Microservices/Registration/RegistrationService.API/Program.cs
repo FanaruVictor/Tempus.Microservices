@@ -42,6 +42,8 @@ builder.AddRabbitMQClient("messaging");
 
 builder.Services.AddHostedService<DeleteCategoryJob>();
 
+builder.Services.AddHttpClient("categoryservice-api", static client => client.BaseAddress = new("https://categoryservice-api"));
+
 var app = builder.Build();
 
 app.MapDefaultEndpoints();

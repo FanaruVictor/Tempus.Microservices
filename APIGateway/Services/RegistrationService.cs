@@ -7,9 +7,10 @@ using Tempus.Shared.Models.Registration;
 
 namespace APIGateway.Services
 {
-    public class RegistrationService(IConfiguration configuration) : IRegistrationService
+    public class RegistrationService(IHttpClientFactory httpClientFactory) : IRegistrationService
     {
-        private readonly string registrationServiceBaseUrl = configuration["registrationServiceBaseURL"];
+        private readonly HttpClient httpClient = httpClientFactory.CreateClient("registrationservice-api");
+
 
         public async Task<RegistrationDetails> Create(Guid userId, NewRegistration newRegistration, Guid groupId)
         {
@@ -23,17 +24,12 @@ namespace APIGateway.Services
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var url = groupId != Guid.Empty
-                ? $"{this.registrationServiceBaseUrl}?groupId={groupId}"
-                : $"{this.registrationServiceBaseUrl}";
+                ? $"/api/registrations?groupId={groupId}"
+                : "/api/registrations";
 
-            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            httpClient.DefaultRequestHeaders.Add("UserId", userId.ToString());
 
-            request.Headers.Add("UserId", userId.ToString());
-            request.Content = content;
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.PostAsync(url, content);
 
             responseObject.EnsureSuccessStatusCode();
 
@@ -47,16 +43,12 @@ namespace APIGateway.Services
         public async Task<Guid> Delete(Guid userId, Guid id, Guid groupId)
         {
             var url = groupId != Guid.Empty
-                ? $"{this.registrationServiceBaseUrl}/{id}?groupId={groupId}"
-                : $"{this.registrationServiceBaseUrl}/{id}";
+                ? $"/api/registrations/{id}?groupId={groupId}"
+                : $"/api/registrations/{id}";
 
-            var request = new HttpRequestMessage(HttpMethod.Delete, url);
+            httpClient.DefaultRequestHeaders.Add("UserId", userId.ToString());
 
-            request.Headers.Add("UserId", userId.ToString());
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.DeleteAsync(url);
 
             responseObject.EnsureSuccessStatusCode();
 
@@ -70,16 +62,12 @@ namespace APIGateway.Services
         public async Task<List<RegistrationDetails>> GetAll(Guid userId, Guid groupId)
         {
             var url = groupId != Guid.Empty
-                ? $"{this.registrationServiceBaseUrl}?groupId={groupId}"
-                : this.registrationServiceBaseUrl;
+                ? $"/api/registrations?groupId={groupId}"
+                : "/api/registrations";
 
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            httpClient.DefaultRequestHeaders.Add("UserId", userId.ToString());
 
-            request.Headers.Add("UserId", userId.ToString());
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.GetAsync(url);
 
             responseObject.EnsureSuccessStatusCode();
 
@@ -93,16 +81,12 @@ namespace APIGateway.Services
         public async Task<RegistrationDetails> GetById(Guid userId, Guid id, Guid groupId)
         {
             var url = groupId != Guid.Empty
-                ? $"{this.registrationServiceBaseUrl}/{id}?groupId={groupId}"
-                : $"{this.registrationServiceBaseUrl}/{id}";
+                ? $"/api/registrations/{id}?groupId={groupId}"
+                : $"/api/registrations/{id}";
 
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            httpClient.DefaultRequestHeaders.Add("UserId", userId.ToString());
 
-            request.Headers.Add("UserId", userId.ToString());
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.GetAsync(url);
 
             responseObject.EnsureSuccessStatusCode();
 
@@ -116,16 +100,12 @@ namespace APIGateway.Services
         public async Task<RegistrationDetails> GetLastUpdated(Guid userId, Guid? groupId)
         {
             var url = groupId.HasValue && groupId.Value != Guid.Empty
-                ? $"{this.registrationServiceBaseUrl}/lastUpdated?groupId={groupId}"
-                : $"{this.registrationServiceBaseUrl}/lastUpdated";
+                ? $"/api/registrations/lastUpdated?groupId={groupId}"
+                : $"/api/registrations/lastUpdated";
 
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            httpClient.DefaultRequestHeaders.Add("UserId", userId.ToString());
 
-            request.Headers.Add("UserId", userId.ToString());
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.GetAsync(url);
 
             responseObject.EnsureSuccessStatusCode();
 
@@ -148,17 +128,12 @@ namespace APIGateway.Services
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var url = groupId != Guid.Empty
-                ? $"{this.registrationServiceBaseUrl}?groupId={groupId}"
-                : $"{this.registrationServiceBaseUrl}";
+                ? $"/api/registrations?groupId={groupId}"
+                : $"/api/registrations";
 
-            var request = new HttpRequestMessage(HttpMethod.Put, url);
+            httpClient.DefaultRequestHeaders.Add("UserId", userId.ToString());
 
-            request.Headers.Add("UserId", userId.ToString());
-            request.Content = content;
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.PutAsync(url, content);
 
             responseObject.EnsureSuccessStatusCode();
 

@@ -40,6 +40,7 @@ builder.Services.AddCors(options =>
 builder.AddRabbitMQClient("messaging");
 
 builder.Services.AddHostedService<DeleteUserJob>();
+builder.Services.AddHttpClient("userservice-api", static client => client.BaseAddress = new("https://userservice-api"));
 
 var app = builder.Build();
 

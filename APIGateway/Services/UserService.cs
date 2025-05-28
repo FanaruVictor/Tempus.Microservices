@@ -7,9 +7,9 @@ using Tempus.Shared.Models.User;
 
 namespace APIGateway.Services
 {
-    public class UserService(IConfiguration configuration) : IUserService
+    public class UserService(IHttpClientFactory httpClientFactory) : IUserService
     {
-        private readonly string userServiceBaseUrl = configuration["userServiceBaseURL"] ?? "";
+        private readonly HttpClient httpClient = httpClientFactory.CreateClient("userservice-api");
 
         public async Task<UserDetails> ChangeTheme(bool isDarkTheme, Guid id)
         {
@@ -17,14 +17,9 @@ namespace APIGateway.Services
 
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var request = new HttpRequestMessage(HttpMethod.Put, $"{this.userServiceBaseUrl}/changeTheme");
+            httpClient.DefaultRequestHeaders.Add("UserId", id.ToString());
 
-            request.Headers.Add("UserId", id.ToString());
-            request.Content = content;
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.PutAsync("/api/users/changeTheme", content);
 
             responseObject.EnsureSuccessStatusCode();
 
@@ -37,13 +32,9 @@ namespace APIGateway.Services
 
         public async Task<Guid> Delete(Guid id)
         {
-            var request = new HttpRequestMessage(HttpMethod.Delete, this.userServiceBaseUrl);
+            httpClient.DefaultRequestHeaders.Add("UserId", id.ToString());
 
-            request.Headers.Add("UserId", id.ToString());
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.DeleteAsync("/api/users");
 
             responseObject.EnsureSuccessStatusCode();
 
@@ -56,13 +47,9 @@ namespace APIGateway.Services
 
         public async Task<List<UserDetails>> GetAll(Guid id)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{this.userServiceBaseUrl}");
+            httpClient.DefaultRequestHeaders.Add("UserId", id.ToString());
 
-            request.Headers.Add("UserId", id.ToString());
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.GetAsync("/api/users");
 
             responseObject.EnsureSuccessStatusCode();
 
@@ -75,13 +62,9 @@ namespace APIGateway.Services
 
         public async Task<UserDetails> GetById(Guid id)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{this.userServiceBaseUrl}/{id}");
+            httpClient.DefaultRequestHeaders.Add("UserId", id.ToString());
 
-            request.Headers.Add("UserId", id.ToString());
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.GetAsync($"/api/users/{id}");
 
             responseObject.EnsureSuccessStatusCode();
 
@@ -94,13 +77,9 @@ namespace APIGateway.Services
 
         public async Task<List<UserEmail>> GetEmails(Guid id)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{this.userServiceBaseUrl}/emails");
+            httpClient.DefaultRequestHeaders.Add("UserId", id.ToString());
 
-            request.Headers.Add("UserId", id.ToString());
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.GetAsync("/api/users/emails");
 
             responseObject.EnsureSuccessStatusCode();
 
@@ -113,13 +92,9 @@ namespace APIGateway.Services
 
         public async Task<bool> GetTheme(Guid id)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{this.userServiceBaseUrl}/theme");
+            httpClient.DefaultRequestHeaders.Add("UserId", id.ToString());
 
-            request.Headers.Add("UserId", id.ToString());
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.GetAsync("/api/users/theme");
 
             responseObject.EnsureSuccessStatusCode();
 
@@ -147,20 +122,18 @@ namespace APIGateway.Services
                 content.Add(new StringContent(field.Value), field.Key);
             }
 
-            using var stream = user.NewPhoto.OpenReadStream();
-            var fileContent = new StreamContent(stream);
-            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(user.NewPhoto.ContentType);
+            if (user.IsPhotoChanged == true && user.NewPhoto != null)
+            {
+                using var stream = user.NewPhoto.OpenReadStream();
+                var fileContent = new StreamContent(stream);
+                fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(user.NewPhoto.ContentType);
 
-            content.Add(fileContent, "file", user.NewPhoto.FileName);
+                content.Add(fileContent, "file", user.NewPhoto.FileName);
+            }
 
-            var request = new HttpRequestMessage(HttpMethod.Put, $"{this.userServiceBaseUrl}");
+            httpClient.DefaultRequestHeaders.Add("UserId", id.ToString());
 
-            request.Headers.Add("UserId", id.ToString());
-            request.Content = content;
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.PutAsync("/api/users", content);
 
             responseObject.EnsureSuccessStatusCode();
 

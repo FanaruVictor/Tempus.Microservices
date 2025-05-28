@@ -30,6 +30,8 @@ namespace RegistrationService.MigrationService
                 throw;
             }
 
+            await Task.Delay(3000, cancellationToken);
+
             hostApplicationLifetime.StopApplication();
         }
 

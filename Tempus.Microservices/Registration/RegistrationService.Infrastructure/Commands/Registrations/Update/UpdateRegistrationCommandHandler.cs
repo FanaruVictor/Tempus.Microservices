@@ -1,9 +1,8 @@
-﻿using System.Text.RegularExpressions;
-using MediatR;
+﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using RegistrationService.Core.Entities;
 using RegistrationService.Data.Context;
-using RegistrationService.Infrastructure.IServices;
+using System.Text.RegularExpressions;
 using Tempus.Shared.Commons;
 using Tempus.Shared.Models.Registration;
 
@@ -12,18 +11,17 @@ namespace RegistrationService.Infrastructure.Commands.Registrations.Update;
 public class
     UpdateRegistrationCommandHandler : IRequestHandler<UpdateRegistrationCommand, BaseResponse<RegistrationDetails>>
 {
-    private readonly ICloudinaryService _cloudinaryService;
+    //private readonly ICloudinaryService _cloudinaryService;
 
     //private readonly IClientEventSender _clientEventSender;
     private readonly RegistrationServiceDbContext _context;
 
     public UpdateRegistrationCommandHandler(
-            ICloudinaryService cloudinaryService
-            , RegistrationServiceDbContext context)
+            RegistrationServiceDbContext context)
 
-        //    IClientEventSender clientEventSender)
+    //    IClientEventSender clientEventSender)
     {
-        _cloudinaryService = cloudinaryService;
+        //_cloudinaryService = cloudinaryService;
         _context = context;
 
         //_clientEventSender = clientEventSender;
@@ -40,12 +38,12 @@ public class
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
-            if(entity == null)
+            if (entity == null)
             {
                 return BaseResponse<RegistrationDetails>.NotFound($"Registration with Id: {request.Id} was not found");
             }
 
-            if(request.GroupId.HasValue && entity.OwnerId != request.GroupId.Value &&
+            if (request.GroupId.HasValue && entity.OwnerId != request.GroupId.Value &&
                request.GroupId.Value != Guid.Empty && entity.OwnerId != request.UserId)
             {
                 return BaseResponse<RegistrationDetails>.Forbbiden();
@@ -64,17 +62,17 @@ public class
 
             var images = ExtractImages(request.Content);
 
-            var cloudinaryImages = await _cloudinaryService.UploadRegistrationImages(images);
+            //var cloudinaryImages = await _cloudinaryService.UploadRegistrationImages(images);
 
-            if(cloudinaryImages.Length > 0)
-            {
-                for(var i = 0; i < images.Count; i++)
-                {
-                    var image = images[i].Value;
-                    var style = ExtractStyle(images[i].Value);
-                    entity.Content = entity.Content?.Replace(image, CreateImage(cloudinaryImages[i], style));
-                }
-            }
+            //if(cloudinaryImages.Length > 0)
+            //{
+            //    for(var i = 0; i < images.Count; i++)
+            //    {
+            //        var image = images[i].Value;
+            //        var style = ExtractStyle(images[i].Value);
+            //        entity.Content = entity.Content?.Replace(image, CreateImage(cloudinaryImages[i], style));
+            //    }
+            //}
 
             _context.Registrations.Update(entity);
             await _context.SaveChangesAsync(cancellationToken);
@@ -87,9 +85,9 @@ public class
             var result = BaseResponse<RegistrationDetails>.Ok(detailedRegistration);
             return result;
         }
-        catch(Exception exception)
+        catch (Exception exception)
         {
-            var result = BaseResponse<RegistrationDetails>.BadRequest(new List<string> {exception.Message});
+            var result = BaseResponse<RegistrationDetails>.BadRequest(new List<string> { exception.Message });
             return result;
         }
     }
@@ -102,7 +100,7 @@ public class
 
     private string CreateImage(string image, string style)
     {
-        return$"<img src=\"{image}\" {style}/>";
+        return $"<img src=\"{image}\" {style}/>";
     }
 
     private string ExtractStyle(string image)
@@ -114,16 +112,16 @@ public class
 
         var match = regex.Match(image);
 
-        if(match.Success)
+        if (match.Success)
         {
             // Extract the style and width attributes
             var style = match.Groups["style"].Value;
             var width = match.Groups["width"].Value;
 
-            return$"style=\"{style}\" width=\"{width}\"";
+            return $"style=\"{style}\" width=\"{width}\"";
         }
 
-        return"";
+        return "";
     }
 
     /*private async Task SendClientEvent(Registration registration, UpdateRegistrationCommand request)

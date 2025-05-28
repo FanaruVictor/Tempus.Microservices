@@ -1,21 +1,20 @@
-﻿using System.Text;
-using GroupService.Core.Entities;
+﻿using GroupService.Core.Entities;
 using GroupService.Data.Context;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using System.Text;
 using Tempus.Shared.Commons;
 using Tempus.Shared.Models.Group;
 using Tempus.Shared.Models.User;
 
 namespace GroupService.Infrastructure.Queries.Groups.GetGroupByIdQuery;
 
-public class GetGroupByIdQueryHandler(GroupServiceDbContext context, IConfiguration configuration)
+public class GetGroupByIdQueryHandler(GroupServiceDbContext context, IHttpClientFactory httpClientFactory)
     : IRequestHandler<GetGroupByIdQuery, BaseResponse<GroupDetails>>
 {
     private readonly GroupServiceDbContext context = context;
-    private readonly string userServiceBaseUrl = configuration["userServiceBaseURL"];
+    private readonly HttpClient httpClient = httpClientFactory.CreateClient("userservice-api");
 
     public async Task<BaseResponse<GroupDetails>> Handle(GetGroupByIdQuery request,
         CancellationToken cancellationToken)
@@ -24,14 +23,14 @@ public class GetGroupByIdQueryHandler(GroupServiceDbContext context, IConfigurat
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
-        if(group == null)
+        if (group == null)
         {
             return BaseResponse<GroupDetails>.NotFound("Group not found!");
         }
 
         var validator = ValidateGroup(request, group);
 
-        if(validator.StatusCode != StatusCodes.Ok)
+        if (validator.StatusCode != StatusCodes.Ok)
         {
             return validator;
         }
@@ -56,7 +55,7 @@ public class GetGroupByIdQueryHandler(GroupServiceDbContext context, IConfigurat
 
     private BaseResponse<GroupDetails> ValidateGroup(GetGroupByIdQuery request, Group group)
     {
-        if(request.UserId != group.OwnerId)
+        if (request.UserId != group.OwnerId)
         {
             return BaseResponse<GroupDetails>.Forbbiden();
         }
@@ -70,15 +69,9 @@ public class GetGroupByIdQueryHandler(GroupServiceDbContext context, IConfigurat
 
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        var request = new HttpRequestMessage(HttpMethod.Post, $"{userServiceBaseUrl}/emails");
+        httpClient.DefaultRequestHeaders.Add("UserId", requesterId.ToString());
 
-        request.Headers.Add("UserId", requesterId.ToString());
-
-        request.Content = content;
-
-        using var httpClient = new HttpClient();
-
-        var responseObject = await httpClient.SendAsync(request);
+        var responseObject = await httpClient.PostAsync("/api/users/emails", content);
 
         var responseString = await responseObject.Content.ReadAsStringAsync();
 

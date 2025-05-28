@@ -23,14 +23,14 @@ public class UpdateCategoryCommandHandler(CategoryServiceDbContext context)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
-            if(entity == null)
+            if (entity == null)
             {
                 return BaseResponse<BaseCategory>.NotFound(
                     $"Category with Id: {request.Id} not found.");
             }
 
-            if((request.GroupId.HasValue && request.GroupId.Value != entity.OwnerId &&
-                request.GroupId.Value != Guid.Empty) || request.UserId != entity.Id)
+            if ((request.GroupId.HasValue && request.GroupId.Value != entity.OwnerId &&
+                request.GroupId.Value != Guid.Empty) || request.UserId != entity.OwnerId)
             {
                 return BaseResponse<BaseCategory>.Forbbiden();
             }
@@ -53,7 +53,7 @@ public class UpdateCategoryCommandHandler(CategoryServiceDbContext context)
 
             return result;
         }
-        catch(Exception exception)
+        catch (Exception exception)
         {
             var result = BaseResponse<BaseCategory>.BadRequest([exception.Message]);
             return result;

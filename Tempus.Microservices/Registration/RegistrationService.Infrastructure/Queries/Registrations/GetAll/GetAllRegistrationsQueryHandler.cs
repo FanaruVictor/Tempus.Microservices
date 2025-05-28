@@ -1,10 +1,9 @@
-﻿using System.Text;
-using MediatR;
+﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using RegistrationService.Core.Entities;
 using RegistrationService.Data.Context;
+using System.Text;
 using Tempus.Shared.Commons;
 using Tempus.Shared.Models.Category;
 using Tempus.Shared.Models.Registration;
@@ -15,13 +14,14 @@ public class
     GetAllRegistrationsQueryHandler : IRequestHandler<GetAllRegistrationsQuery,
     BaseResponse<List<RegistrationDetails>>>
 {
-    private readonly string? _categoryServiceBaseUrl;
+    private readonly HttpClient httpClient;
     private readonly RegistrationServiceDbContext _context;
 
-    public GetAllRegistrationsQueryHandler(RegistrationServiceDbContext context, IConfiguration configuration)
+    public GetAllRegistrationsQueryHandler(RegistrationServiceDbContext context, IHttpClientFactory httpClientFactory)
     {
         _context = context;
-        _categoryServiceBaseUrl = configuration["categoryServiceBaseURL"];
+        httpClient = httpClientFactory.CreateClient("categoryservice-api");
+
     }
 
     public async Task<BaseResponse<List<RegistrationDetails>>> Handle(GetAllRegistrationsQuery request,
@@ -38,10 +38,11 @@ public class
                     : request.UserId))
                 .ToList();
 
+            //problema de performanta si de call la category service
             var registrationsOverview = registrations
                 .Select(x =>
                 {
-                    var category = GetCategory(x.CategoryId, request.UserId, request.GroupId);
+                    var category = GetCategory(x.CategoryId, request.UserId, request.GroupId).GetAwaiter().GetResult();
 
                     var currentRegistration = GenericMapper<Registration, RegistrationDetails>.Map(x);
 
@@ -54,32 +55,33 @@ public class
             var response = BaseResponse<List<RegistrationDetails>>.Ok(registrationsOverview);
             return response;
         }
-        catch(Exception exception)
+        catch (Exception exception)
         {
-            var response = BaseResponse<List<RegistrationDetails>>.BadRequest(new List<string> {exception.Message});
+            var response = BaseResponse<List<RegistrationDetails>>.BadRequest(new List<string> { exception.Message });
             return response;
         }
     }
 
-    private BaseCategory GetCategory(Guid id, Guid userId, Guid? groupId)
+    private async Task<BaseCategory> GetCategory(Guid id, Guid userId, Guid? groupId)
     {
         var url = groupId.HasValue && groupId.Value != Guid.Empty
-            ? $"{_categoryServiceBaseUrl}/{id}?groupId={groupId.Value}"
-            : $"{_categoryServiceBaseUrl}/{id}";
+            ? $"/api/categories/{id}?groupId={groupId.Value}"
+            : $"/api/categories/{id}";
 
-        var request = new HttpRequestMessage(HttpMethod.Get, url);
+        if (httpClient.DefaultRequestHeaders.Contains("UserId"))
+        {
+            httpClient.DefaultRequestHeaders.Remove("UserId");
+        }
 
-        request.Headers.Add("UserId", userId.ToString());
+        httpClient.DefaultRequestHeaders.Add("UserId", userId.ToString());
 
-        using var httpClient = new HttpClient();
-
-        var responseObject = httpClient.Send(request);
+        var responseObject = await httpClient.GetAsync(url);
 
         responseObject.EnsureSuccessStatusCode();
 
         var result = "";
-        using(var stream = responseObject.Content.ReadAsStream())
-        using(var reader = new StreamReader(stream, Encoding.UTF8))
+        using (var stream = responseObject.Content.ReadAsStream())
+        using (var reader = new StreamReader(stream, Encoding.UTF8))
         {
             result = reader.ReadToEnd();
         }

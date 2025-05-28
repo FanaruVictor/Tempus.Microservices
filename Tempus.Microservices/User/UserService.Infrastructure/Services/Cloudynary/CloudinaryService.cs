@@ -20,12 +20,12 @@ public class CloudinaryService : ICloudinaryService
     {
         _cloudinaryConfig = cloudinaryConfig;
 
-        var account = new Account(
-            _cloudinaryConfig.Value.CloudName,
-            _cloudinaryConfig.Value.ApiKey,
-            _cloudinaryConfig.Value.ApiSecret);
+        //var account = new Account(
+        //    _cloudinaryConfig.Value.CloudName,
+        //    _cloudinaryConfig.Value.ApiKey,
+        //    _cloudinaryConfig.Value.ApiSecret);
 
-        _cloudinary = new Cloudinary(account);
+        //_cloudinary = new Cloudinary(account);
         _context = context;
     }
 

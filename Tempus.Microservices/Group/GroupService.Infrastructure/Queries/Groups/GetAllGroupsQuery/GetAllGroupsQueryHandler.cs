@@ -1,10 +1,9 @@
-﻿using System.Text;
-using GroupService.Core.Entities;
+﻿using GroupService.Core.Entities;
 using GroupService.Data.Context;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using System.Text;
 using Tempus.Shared.Commons;
 using Tempus.Shared.Models.Group;
 
@@ -13,12 +12,13 @@ namespace GroupService.Infrastructure.Queries.Groups.GetAllGroupsQuery;
 public class GetAllGroupsQueryHandler : IRequestHandler<GetAllGroupsQuery, BaseResponse<List<GroupOverview>>>
 {
     private readonly GroupServiceDbContext context;
+    private readonly HttpClient httpClient;
     private readonly string? userServiceBaseUrl;
 
-    public GetAllGroupsQueryHandler(GroupServiceDbContext context, IConfiguration configuration)
+    public GetAllGroupsQueryHandler(GroupServiceDbContext context, IHttpClientFactory httpClientFactory)
     {
         this.context = context;
-        userServiceBaseUrl = configuration["userServiceBaseURL"];
+        this.httpClient = httpClientFactory.CreateClient("userservice-api");
     }
 
     public async Task<BaseResponse<List<GroupOverview>>> Handle(GetAllGroupsQuery request,
@@ -56,7 +56,7 @@ public class GetAllGroupsQueryHandler : IRequestHandler<GetAllGroupsQuery, BaseR
             }).ToList();
 
 
-            foreach(var group in groupsOverview)
+            foreach (var group in groupsOverview)
             {
                 var currentUserPhotos = await GetUserPhotos(userGroups, request.UserId);
 
@@ -65,9 +65,9 @@ public class GetAllGroupsQueryHandler : IRequestHandler<GetAllGroupsQuery, BaseR
 
             return BaseResponse<List<GroupOverview>>.Ok(groupsOverview);
         }
-        catch(Exception exception)
+        catch (Exception exception)
         {
-            return BaseResponse<List<GroupOverview>>.BadRequest(new List<string> {exception.Message});
+            return BaseResponse<List<GroupOverview>>.BadRequest(new List<string> { exception.Message });
         }
     }
 
@@ -79,15 +79,14 @@ public class GetAllGroupsQueryHandler : IRequestHandler<GetAllGroupsQuery, BaseR
 
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        var request = new HttpRequestMessage(HttpMethod.Post, $"{userServiceBaseUrl}/photos");
+        if (httpClient.DefaultRequestHeaders.Contains("UserId"))
+        {
+            httpClient.DefaultRequestHeaders.Remove("UserId");
+        }
 
-        request.Headers.Add("UserId", userId.ToString());
+        httpClient.DefaultRequestHeaders.Add("UserId", userId.ToString());
 
-        request.Content = content;
-
-        using var httpClient = new HttpClient();
-
-        var responseObject = await httpClient.SendAsync(request);
+        var responseObject = await httpClient.PostAsync("/api/users/photos", content);
 
         var responseString = await responseObject.Content.ReadAsStringAsync();
 

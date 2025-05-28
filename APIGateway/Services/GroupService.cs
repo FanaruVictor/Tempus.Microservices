@@ -6,9 +6,9 @@ using Tempus.Shared.Models.Group;
 
 namespace APIGateway.Services
 {
-    public class GroupService(IConfiguration configuration) : IGroupService
+    public class GroupService(IHttpClientFactory httpClientFactory) : IGroupService
     {
-        private readonly string groupServiceBaseUrl = configuration["groupServiceBaseURL"];
+        private readonly HttpClient httpClient = httpClientFactory.CreateClient("groupservice-api");
 
         public async Task<bool> Create(Guid userId, NewGroup newGroup)
         {
@@ -20,12 +20,12 @@ namespace APIGateway.Services
 
             using var content = new MultipartFormDataContent();
 
-            foreach(var field in formData)
+            foreach (var field in formData)
             {
                 content.Add(new StringContent(field.Value), field.Key);
             }
 
-            if(newGroup.Image != null)
+            if (newGroup.Image != null)
             {
                 using var stream = newGroup.Image.OpenReadStream();
 
@@ -38,14 +38,9 @@ namespace APIGateway.Services
             }
 
 
-            var request = new HttpRequestMessage(HttpMethod.Post, $"{this.groupServiceBaseUrl}");
+            httpClient.DefaultRequestHeaders.Add("UserId", userId.ToString());
 
-            request.Content = content;
-            request.Headers.Add("UserId", userId.ToString());
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.PostAsync("/api/groups", content);
 
             responseObject.EnsureSuccessStatusCode();
 
@@ -58,13 +53,9 @@ namespace APIGateway.Services
 
         public async Task<Guid> Delete(Guid userId, Guid id)
         {
-            var request = new HttpRequestMessage(HttpMethod.Delete, $"{this.groupServiceBaseUrl}/{id}");
+            httpClient.DefaultRequestHeaders.Add("UserId", userId.ToString());
 
-            request.Headers.Add("UserId", userId.ToString());
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.DeleteAsync($"/api/groups/{id}");
 
             responseObject.EnsureSuccessStatusCode();
 
@@ -77,13 +68,9 @@ namespace APIGateway.Services
 
         public async Task<List<GroupOverview>> GetAll(Guid userId)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, this.groupServiceBaseUrl);
+            httpClient.DefaultRequestHeaders.Add("UserId", userId.ToString());
 
-            request.Headers.Add("UserId", userId.ToString());
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.GetAsync("/api/groups");
 
             responseObject.EnsureSuccessStatusCode();
 
@@ -96,13 +83,9 @@ namespace APIGateway.Services
 
         public async Task<GroupDetails> GetById(Guid userId, Guid id)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{this.groupServiceBaseUrl}/{id}");
+            httpClient.DefaultRequestHeaders.Add("UserId", userId.ToString());
 
-            request.Headers.Add("UserId", userId.ToString());
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.GetAsync($"/api/groups/{id}");
 
             var responseString = await responseObject.Content.ReadAsStringAsync();
 
@@ -123,12 +106,12 @@ namespace APIGateway.Services
 
             using var content = new MultipartFormDataContent();
 
-            foreach(var field in formData)
+            foreach (var field in formData)
             {
                 content.Add(new StringContent(field.Value), field.Key);
             }
 
-            if(groupInfo.Image != null)
+            if (groupInfo.Image != null)
             {
                 using var stream = groupInfo.Image.OpenReadStream();
 
@@ -141,14 +124,9 @@ namespace APIGateway.Services
             }
 
 
-            var request = new HttpRequestMessage(HttpMethod.Put, $"{this.groupServiceBaseUrl}");
+            httpClient.DefaultRequestHeaders.Add("UserId", userId.ToString());
 
-            request.Content = content;
-            request.Headers.Add("UserId", userId.ToString());
-
-            using var httpClient = new HttpClient();
-
-            var responseObject = await httpClient.SendAsync(request);
+            var responseObject = await httpClient.PutAsync($"/api/groups", content);
 
             responseObject.EnsureSuccessStatusCode();
 

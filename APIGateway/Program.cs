@@ -7,9 +7,8 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Configuration.AddEnvironmentVariables();
 builder.AddServiceDefaults();
-
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -61,7 +60,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 
-builder.Services.AddHttpClient();
+builder.Services.AddHttpClient("userservice-api", static client => client.BaseAddress = new("https://userservice-api"));
+builder.Services.AddHttpClient("categoryservice-api", static client => client.BaseAddress = new("https://categoryservice-api"));
+builder.Services.AddHttpClient("registrationservice-api", static client => client.BaseAddress = new("https://registrationservice-api"));
+builder.Services.AddHttpClient("groupservice-api", static client => client.BaseAddress = new("https://groupservice-api"));
+
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -70,15 +73,13 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IRegistrationService, RegistrationService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
 
+
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

@@ -7,7 +7,6 @@ using Tempus.Shared.Models.User;
 using UserService.Core.Entities;
 using UserService.Data.Context;
 using UserService.Infrastructure.IServices;
-using UserService.Infrastructure.Models;
 using StatusCodes = Tempus.Shared.Commons.StatusCodes;
 
 namespace UserService.Infrastructure.Commands.Users.Update;
@@ -72,7 +71,8 @@ public class UpdateUserCommandHandler(
             Email = request.Email,
             PhoneNumber = request.PhoneNumber,
             IsDarkTheme = user.IsDarkTheme,
-            Photo = user.Photo
+            Photo = user.Photo,
+            Password = user.Password,
         };
 
         if (request.IsPhotoChanged)

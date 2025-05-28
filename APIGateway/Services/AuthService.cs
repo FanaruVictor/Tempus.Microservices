@@ -15,18 +15,17 @@ public class AuthService : IAuthService
 {
     private readonly IConfiguration configuration;
     private readonly string userServiceBaseUrl;
+    private readonly HttpClient httpClient;
 
-    public AuthService(IConfiguration configuration)
+    public AuthService(IConfiguration configuration, IHttpClientFactory httpClientFactory)
     {
         this.configuration = configuration;
 
-        this.userServiceBaseUrl = configuration["userServiceBaseURL"];
+        httpClient = httpClientFactory.CreateClient("userservice-api");
     }
 
     public async Task<AuthorizationResult> Register(NewUser newUser)
     {
-
-        using var httpClient = new System.Net.Http.HttpClient();
 
         newUser.Password = BCryptNet.BCrypt.HashPassword(newUser.Password);
 
@@ -34,7 +33,7 @@ public class AuthService : IAuthService
 
         HttpContent content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        var responseObject = await httpClient.PostAsync(new Uri(this.userServiceBaseUrl), content);
+        var responseObject = await httpClient.PostAsync("/api/users", content);
 
         responseObject.EnsureSuccessStatusCode();
 
@@ -54,9 +53,7 @@ public class AuthService : IAuthService
 
     public async Task<AuthorizationResult?> Login(LoginCredentials credentials)
     {
-        using var httpClient = new System.Net.Http.HttpClient();
-
-        var responseObject = await httpClient.GetAsync(new Uri($"{this.userServiceBaseUrl}/loginCredentials/{credentials.Email}"));
+        var responseObject = await httpClient.GetAsync($"/api/users/loginCredentials/{credentials.Email}");
 
         responseObject.EnsureSuccessStatusCode();
 

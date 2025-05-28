@@ -1,9 +1,7 @@
 ﻿using MediatR;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using RegistrationService.Core.Entities;
 using RegistrationService.Data.Context;
-using RegistrationService.Infrastructure.IServices;
 using System.Text.RegularExpressions;
 using Tempus.Shared.Commons;
 using Tempus.Shared.Models.Category;
@@ -14,16 +12,16 @@ namespace RegistrationService.Infrastructure.Commands.Registrations.Create;
 public class
     CreateRegistrationCommandHandler : IRequestHandler<CreateRegistrationCommand, BaseResponse<RegistrationDetails>>
 {
-    private readonly object _categoryServiceBaseUrl;
-    private readonly ICloudinaryService _cloudinaryService;
+    //private readonly ICloudinaryService _cloudinaryService;
     private readonly RegistrationServiceDbContext _context;
+    private readonly HttpClient httpClient;
 
-    public CreateRegistrationCommandHandler(ICloudinaryService cloudinaryService, RegistrationServiceDbContext context,
-        IConfiguration configuration)
+    public CreateRegistrationCommandHandler(RegistrationServiceDbContext context,
+        IHttpClientFactory httpClientFactory)
     {
-        _cloudinaryService = cloudinaryService;
+        //_cloudinaryService = cloudinaryService;
         _context = context;
-        _categoryServiceBaseUrl = configuration["categoryServiceBaseURL"];
+        httpClient = httpClientFactory.CreateClient("categoryservice-api");
     }
 
     public async Task<BaseResponse<RegistrationDetails>> Handle(CreateRegistrationCommand request,
@@ -59,17 +57,17 @@ public class
 
             var images = ExtractImages(request.Content);
 
-            var cloudinaryImages = await _cloudinaryService.UploadRegistrationImages(images);
+            //var cloudinaryImages = await _cloudinaryService.UploadRegistrationImages(images);
 
-            if (cloudinaryImages.Length > 0)
-            {
-                for (var i = 0; i < images.Count; i++)
-                {
-                    var image = images[i].Value;
-                    var style = ExtractStyle(images[i].Value);
-                    entity.Content = entity.Content?.Replace(image, CreateImage(cloudinaryImages[i], style));
-                }
-            }
+            //if (cloudinaryImages.Length > 0)
+            //{
+            //    for (var i = 0; i < images.Count; i++)
+            //    {
+            //        var image = images[i].Value;
+            //        var style = ExtractStyle(images[i].Value);
+            //        entity.Content = entity.Content?.Replace(image, CreateImage(cloudinaryImages[i], style));
+            //    }
+            //}
 
             await _context.Registrations.AddAsync(entity, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
@@ -127,16 +125,12 @@ public class
     private async Task<BaseCategory> GetCategoryAsync(Guid id, Guid userId, Guid? groupId)
     {
         var url = groupId.HasValue && groupId.Value != Guid.Empty
-            ? $"{_categoryServiceBaseUrl}/{id}?groupId={groupId.Value}"
-            : $"{_categoryServiceBaseUrl}/{id}";
+            ? $"/api/categories/{id}?groupId={groupId.Value}"
+            : $"/api/categories/{id}";
 
-        var request = new HttpRequestMessage(HttpMethod.Get, url);
+        httpClient.DefaultRequestHeaders.Add("UserId", userId.ToString());
 
-        request.Headers.Add("UserId", userId.ToString());
-
-        using var httpClient = new HttpClient();
-
-        var responseObject = await httpClient.SendAsync(request);
+        var responseObject = await httpClient.GetAsync(url);
 
         responseObject.EnsureSuccessStatusCode();
 
