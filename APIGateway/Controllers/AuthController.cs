@@ -7,34 +7,34 @@ using Microsoft.AspNetCore.Mvc;
 namespace APIGateway.Controllers;
 
 [AllowAnonymous, ApiController, Route("api/[controller]")]
-public class AuthController(IAuthService authService) : ControllerBase
+public class AuthController (IAuthService authService) : ControllerBase
 {
-    private readonly IAuthService _authService = authService;
+	private readonly IAuthService _authService = authService;
 
-    [HttpPost]
-    public async Task<ActionResult> Register([FromBody] NewUser newUser)
-    {
-        var result = await _authService.Register(newUser);
+	[HttpPost]
+	public async Task<ActionResult<APIGatewat.Models.AuthorizationResult>> Register ([FromBody] NewUser newUser)
+	{
+		var result = await _authService.Register(newUser);
 
-        if (result != null)
-        {
-            return Ok(result);
-        }
+		if (result != null)
+		{
+			return Ok(result);
+		}
 
-        return BadRequest();
-    }
+		return BadRequest();
+	}
 
-    [HttpPost("login")]
-    public async Task<ActionResult<bool>> Login([FromBody] LoginCredentials credentials)
-    {
-        var result = await _authService.Login(credentials);
+	[HttpPost("login")]
+	public async Task<ActionResult<APIGatewat.Models.AuthorizationResult>> Login ([FromBody] LoginCredentials credentials)
+	{
+		var result = await _authService.Login(credentials);
 
-        if (result != null)
-        {
-            return Ok(result);
-        }
+		if (result != null)
+		{
+			return Ok(result);
+		}
 
-        return BadRequest();
-    }
+		return BadRequest();
+	}
 }
 

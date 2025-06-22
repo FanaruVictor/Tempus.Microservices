@@ -106,7 +106,7 @@ public class UpdateGroupCommandHandler : IRequestHandler<UpdateGroupCommand, Bas
 
         if(request.Members != null)
         {
-            members = request.Members.Split(",").ToList();
+            members = request.Members.ToLower().Split(",").ToList();
         }
 
         var newMembers = members.Where(x => !groupMembersIds.Contains(x));

@@ -2,91 +2,97 @@
 using GroupService.Data.Context;
 using MediatR;
 using Tempus.Shared.Commons;
+using Tempus.Shared.Models.Group;
 
 namespace GroupService.Infrastructure.Commands.Groups.Create;
 
-public class CreateGroupCommandHandler : IRequestHandler<CreateGroupCommand, BaseResponse<bool>>
+public class CreateGroupCommandHandler : IRequestHandler<CreateGroupCommand, BaseResponse<GroupOverview>>
 {
-    //private readonly ICloudinaryService _cloudinaryService;
-    private readonly GroupServiceDbContext context;
+	//private readonly ICloudinaryService _cloudinaryService;
+	private readonly GroupServiceDbContext context;
 
-    public CreateGroupCommandHandler(GroupServiceDbContext context)
-    {
-        //_cloudinaryService = cloudinaryService;
-        this.context = context;
-    }
+	public CreateGroupCommandHandler (GroupServiceDbContext context)
+	{
+		//_cloudinaryService = cloudinaryService;
+		this.context = context;
+	}
 
-    public async Task<BaseResponse<bool>> Handle(CreateGroupCommand request, CancellationToken cancellationToken)
-    {
-        try
-        {
-            cancellationToken.ThrowIfCancellationRequested();
+	public async Task<BaseResponse<GroupOverview>> Handle (CreateGroupCommand request, CancellationToken cancellationToken)
+	{
+		try
+		{
+			cancellationToken.ThrowIfCancellationRequested();
 
-            if(request.UserId == null)
-            {
-                return BaseResponse<bool>.BadRequest(new List<string>());
-            }
+			if (request.UserId == null)
+			{
+				return BaseResponse<GroupOverview>.BadRequest(new List<string>());
+			}
 
-            var group = new Group
-            {
-                Id = Guid.NewGuid(),
-                Name = request.Name,
-                OwnerId = request.UserId,
-                CreatedAt = DateTime.UtcNow
-            };
+			var group = new Group
+			{
+				Id = Guid.NewGuid(),
+				Name = request.Name,
+				OwnerId = request.UserId,
+				CreatedAt = DateTime.UtcNow
+			};
 
-            await context.Groups.AddAsync(group);
+			await context.Groups.AddAsync(group);
 
-            //await AddImage(request, group.Id);
+			//await AddImage(request, group.Id);
 
-            await AddGroupUser(request, group.Id);
+			await AddGroupUser(request, group.Id);
 
-            await context.SaveChangesAsync(cancellationToken);
+			await context.SaveChangesAsync(cancellationToken);
 
-            return BaseResponse<bool>.Ok(true);
-        }
-        catch(Exception exception)
-        {
-            return BaseResponse<bool>.BadRequest(new List<string>
-            {
-                exception.Message
-            });
-        }
-    }
+			var groupOverview = GenericMapper<Group, GroupOverview>.Map(group);
 
-    private async Task AddGroupUser(CreateGroupCommand request, Guid groupId)
-    {
-        var groupUsers = new List<UserGroup>
-        {
-            new()
-            {
-                GroupId = groupId,
-                UserId = request.UserId
-            }
-        };
+			return BaseResponse<GroupOverview>.Ok(groupOverview);
+		}
+		catch (Exception exception)
+		{
+			return BaseResponse<GroupOverview>.BadRequest(new List<string>
+			{
+				exception.Message
+			});
+		}
+	}
 
-        var members = request.Members
-            .Replace("\"", "")
-            .Split(',')
-            .Select(x => x.Replace("\"", ""));
+	private async Task AddGroupUser (CreateGroupCommand request, Guid groupId)
+	{
+		var groupUsers = new List<UserGroup>
+		{
+			new()
+			{
+				GroupId = groupId,
+				UserId = request.UserId
+			}
+		};
 
-        foreach(var member in members)
-        {
-            groupUsers.Add(new UserGroup
-            {
-                GroupId = groupId,
-                UserId = new Guid(member)
-            });
-        }
+		var members = request.Members
+			.Replace("\"", "")
+			.Split(',')
+			.Select(x => x.Replace("\"", ""));
 
-        await context.UserGroups.AddRangeAsync(groupUsers);
-    }
+		members = members.Where(x => x != request.UserId.ToString());
 
-    private async Task AddImage(CreateGroupCommand request, Guid groupId)
-    {
-        if(request.Image == null) { }
+		foreach (var member in members)
+		{
+			groupUsers.Add(new UserGroup
+			{
+				GroupId = groupId,
+				UserId = new Guid(member)
+			});
+		}
 
-        /*var uploadResult = await _cloudinaryService.Upload(request.Image);
+		await context.UserGroups.AddRangeAsync(groupUsers);
+	}
+
+	private async Task AddImage (CreateGroupCommand request, Guid groupId)
+	{
+		if (request.Image == null)
+		{ }
+
+		/*var uploadResult = await _cloudinaryService.Upload(request.Image);
 
          var groupPhoto = new Photo
          {
@@ -97,5 +103,5 @@ public class CreateGroupCommandHandler : IRequestHandler<CreateGroupCommand, Bas
          };
 
          await this.context.Photos.AddAsync(groupPhoto);*/
-    }
+	}
 }
